@@ -42,6 +42,7 @@
 #include <atomic>
 #include <map>
 #include <memory>
+#include <fstream>
 #include "include/memory.h"
 using namespace std;
 
@@ -55,6 +56,8 @@ using namespace std;
 #include "messages/MOSDOp.h"
 #include "include/Spinlock.h"
 #include "common/EventTrace.h"
+
+#include <libperf.h>
 
 #define CEPH_OSD_PROTOCOL    10 /* cluster internal */
 
@@ -1875,12 +1878,17 @@ private:
 
   // -- peering queue --
   struct PeeringWQ : public ThreadPool::BatchWorkQueue<PG> {
+    struct libperf_data *pd;
     list<PG*> peering_queue;
+    vector<uint64_t> counters;
     OSD *osd;
     set<PG*> in_use;
     PeeringWQ(OSD *o, time_t ti, time_t si, ThreadPool *tp)
       : ThreadPool::BatchWorkQueue<PG>(
-	"OSD::PeeringWQ", ti, si, tp), osd(o) {}
+	"OSD::PeeringWQ", ti, si, tp), osd(o) {
+      pd = libperf_initialize(-1, -1);
+      libperf_enablecounter(pd, LIBPERF_COUNT_HW_INSTRUCTIONS);
+    }
 
     void _dequeue(PG *pg) override {
       for (list<PG*>::iterator i = peering_queue.begin();
@@ -1895,8 +1903,20 @@ private:
       }
     }
     bool _enqueue(PG *pg) override {
+      uint64_t counter = libperf_readcounter(pd, LIBPERF_COUNT_HW_INSTRUCTIONS);
       pg->get("PeeringWQ");
       peering_queue.push_back(pg);
+      counters.push_back(libperf_readcounter(pd, LIBPERF_COUNT_HW_INSTRUCTIONS)
+        - counter);
+      if (counters.size() % 100 == 0) {
+        ofstream myfile;
+        myfile.open ("/tmp/osd-stats");
+        for (int i = 0; i < counters.size(); i++) {
+          myfile << counters[i] << std::endl;
+        }
+        counters.clear();
+        myfile.close();
+      }
       return true;
     }
     bool _empty() override {

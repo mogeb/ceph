@@ -800,7 +800,7 @@ add_executable(ceph-osd ${ceph_osd_srcs}
   $<TARGET_OBJECTS:common_util_obj>)
 add_dependencies(ceph-osd erasure_code_plugins)
 target_link_libraries(ceph-osd osd os global-static common
-  ${BLKID_LIBRARIES} ${RDMA_LIBRARIES})
+  ${BLKID_LIBRARIES} ${RDMA_LIBRARIES} perf)
 if(WITH_FUSE)
   target_link_libraries(ceph-osd ${FUSE_LIBRARIES})
 endif()
