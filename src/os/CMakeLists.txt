@@ -88,7 +88,7 @@ if(HAVE_LIBAIO)
   add_executable(ceph-bluefs-tool
     bluestore/bluefs_tool.cc)
   target_link_libraries(ceph-bluefs-tool
-    os global)
+    os global perf)
   install(TARGETS ceph-bluefs-tool
     DESTINATION bin)
 endif()

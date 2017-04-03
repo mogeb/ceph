@@ -1,3 +1,4 @@
+set(CMAKE_DL_LIBS ${CMAKE_DL_LIBS} perf)
 add_ceph_test(test-erasure-code-plugins.sh ${CMAKE_CURRENT_SOURCE_DIR}/test-erasure-code-plugins.sh)
 
 add_ceph_test(test-erasure-code.sh ${CMAKE_CURRENT_SOURCE_DIR}/test-erasure-code.sh)

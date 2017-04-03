@@ -1,3 +1,4 @@
+set(EXTRA_LIBS ${EXTRA_LIBS} perf)
 set(rbd_mirror_test_srcs
   test_ClusterWatcher.cc
   test_PoolWatcher.cc
@@ -58,6 +59,7 @@ target_link_libraries(unittest_rbd_mirror
   osdc
   global
   radostest
+  ${EXTRA_LIBS}
   )
 
 add_executable(ceph_test_rbd_mirror
@@ -78,6 +80,7 @@ target_link_libraries(ceph_test_rbd_mirror
   rados_a
   radostest
   ${UNITTEST_LIBS}
+  ${EXTRA_LIBS}
   )
 
 add_executable(ceph_test_rbd_mirror_random_write
@@ -85,7 +88,7 @@ add_executable(ceph_test_rbd_mirror_random_write
 set_target_properties(ceph_test_rbd_mirror_random_write PROPERTIES COMPILE_FLAGS
   ${UNITTEST_CXX_FLAGS})
 target_link_libraries(ceph_test_rbd_mirror_random_write
-  librbd librados global)
+  librbd librados global ${EXTRA_LIBS})
 
 install(TARGETS
   ceph_test_rbd_mirror

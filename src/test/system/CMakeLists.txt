@@ -1,5 +1,5 @@
 ## System tests
-
+set(BLKID_LIBRARIES ${BLKID_LIBRARIES} perf)
 set(libsystest_srcs 
   cross_process_sem.cc
   systest_runnable.cc

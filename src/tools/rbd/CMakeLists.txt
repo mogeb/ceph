@@ -1,3 +1,4 @@
+set(EXTRA_LIBS ${EXTRA_LIBS} perf)
 set(rbd_srcs
   rbd.cc
   ArgumentTypes.cc
@@ -43,7 +44,7 @@ target_link_libraries(rbd librbd librados
   rbd_types
   journal
   ceph-common global
-  ${BLKID_LIBRARIES} ${CMAKE_DL_LIBS})
+  ${BLKID_LIBRARIES} ${CMAKE_DL_LIBS} ${EXTRA_LIBS})
 if(WITH_KRBD)
   target_link_libraries(rbd 
     krbd)

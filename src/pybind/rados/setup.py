@@ -106,6 +106,7 @@ def check_sanity():
 
         compiler.set_include_dirs([os.path.join(CEPH_SRC_DIR, 'include')])
         compiler.set_library_dirs([os.environ.get('CEPH_LIBDIR')])
+        compiler.set_libraries(['perf'])
 
     try:
         link_objects = compiler.compile(

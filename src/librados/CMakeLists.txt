@@ -1,3 +1,4 @@
+set(EXTRA_LIBS ${EXTRA_LIBS} perf)
 add_library(librados_objs OBJECT
   IoCtxImpl.cc
   RadosXattrIter.cc

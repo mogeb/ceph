@@ -5,6 +5,7 @@ set(smalliobench_srcs
   detailed_stat_collector.cc
   bencher.cc
   )
+set(BLKID_LIBRARIES ${BLKID_LIBRARIES} perf)
 add_executable(ceph_smalliobench
   ${smalliobench_srcs}
   )

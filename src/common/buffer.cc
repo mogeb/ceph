@@ -1423,6 +1423,33 @@ static simple_spinlock_t buffer_debug_lock = SIMPLE_SPINLOCK_INITIALIZER;
 
   // -- buffer::list --
 
+    buffer::list::list() : _len(0), _memcopy_count(0), last_p(this) {
+        int num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+        counters = new measurement_cpu_perf[num_cpus];
+        for (int i = 0; i < num_cpus; i++) {
+          counters[i].entries = new measurement_entry[PER_CPU_ALLOC];
+          counters[i].pos = 0;
+        }
+        pd = libperf_initialize(-1, -1);
+        if (pd) {
+          libperf_enablecounter(pd, LIBPERF_COUNT_HW_INSTRUCTIONS);
+        }
+    }
+    // cppcheck-suppress noExplicitConstructor
+    buffer::list::list(unsigned prealloc) : _len(0), _memcopy_count(0), last_p(this) {
+      reserve(prealloc);
+        int num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+        counters = new measurement_cpu_perf[num_cpus];
+        for (int i = 0; i < num_cpus; i++) {
+          counters[i].entries = new measurement_entry[PER_CPU_ALLOC];
+          counters[i].pos = 0;
+        }
+        pd = libperf_initialize(-1, -1);
+        if (pd) {
+          libperf_enablecounter(pd, LIBPERF_COUNT_HW_INSTRUCTIONS);
+        }
+    }
+
   buffer::list::list(list&& other)
     : _buffers(std::move(other._buffers)),
       _len(other._len),
@@ -1882,14 +1909,41 @@ static simple_spinlock_t buffer_debug_lock = SIMPLE_SPINLOCK_INITIALIZER;
   {
     if (n >= _len)
       throw end_of_buffer();
-    
+
+    unsigned int *pos;
+    uint64_t counter;
+    int current_cpu = sched_getcpu();
+    if (pd) {
+      counter = libperf_readcounter(pd, LIBPERF_COUNT_HW_CACHE_MISSES);
+      // TODO what happens during CPU migrations?
+      pos = &(counters[current_cpu].pos);
+    }
+
     for (std::list<ptr>::const_iterator p = _buffers.begin();
-	 p != _buffers.end();
-	 ++p) {
+      p != _buffers.end();
+      ++p) {
       if (n >= p->length()) {
-	n -= p->length();
-	continue;
+	      n -= p->length();
+      	continue;
       }
+      // if (pd) {
+      //   // libperf_readcounter is thread-safe
+      //   counters[current_cpu].entries[*pos].pmu1 =
+      //     libperf_readcounter(pd, LIBPERF_COUNT_HW_CACHE_MISSES) - counter;
+      //   pid_t pid = getpid();
+      //   if (*(pos) == 5000 && (pid % 4 == 0)) {
+      //     string filename("/tmp/osd-stats-");
+      //     filename.append(std::to_string(pid));
+      //     ofstream myfile(filename);
+      //     for (unsigned int i = 0; i < *pos; i++) {
+      //       myfile << counters[current_cpu].entries[i].pmu1 << std::endl;
+      //     }
+      //     myfile.close();
+      //     *pos = 0;
+      //   } else {
+      //     ++(*pos);
+      //   }
+      // }
       return (*p)[n];
     }
     ceph_abort();

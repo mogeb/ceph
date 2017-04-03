@@ -58,7 +58,9 @@ using namespace std;
 #include "common/EventTrace.h"
 
 #include <libperf.h>
+#include <unistd.h>
 
+#define PER_CPU_ALLOC 2000
 #define CEPH_OSD_PROTOCOL    10 /* cluster internal */
 
 
@@ -1876,47 +1878,72 @@ private:
     PGRef pg, OpRequestRef op,
     ThreadPool::TPHandle &handle);
 
+  struct measurement_entry {
+    unsigned long pmu1;
+    unsigned long pmu2;
+    unsigned long pmu3;
+    unsigned long pmu4;
+    unsigned long latency;
+  };
+
+  struct measurement_cpu_perf {
+    struct measurement_entry *entries;
+    unsigned int pos;
+  };
+
   // -- peering queue --
   struct PeeringWQ : public ThreadPool::BatchWorkQueue<PG> {
     struct libperf_data *pd;
     list<PG*> peering_queue;
-    vector<uint64_t> counters;
+    measurement_cpu_perf *counters;
     OSD *osd;
     set<PG*> in_use;
     PeeringWQ(OSD *o, time_t ti, time_t si, ThreadPool *tp)
       : ThreadPool::BatchWorkQueue<PG>(
 	"OSD::PeeringWQ", ti, si, tp), osd(o) {
-      pd = libperf_initialize(-1, -1);
-      libperf_enablecounter(pd, LIBPERF_COUNT_HW_INSTRUCTIONS);
+      // int num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+      // counters = new measurement_cpu_perf[num_cpus];
+      // for (int i = 0; i < num_cpus; i++) {
+      //   counters[i].entries = new measurement_entry[PER_CPU_ALLOC];
+      //   counters[i].pos = 0;
+      // }
+      // pd = libperf_initialize(-1, -1);
+      // libperf_enablecounter(pd, LIBPERF_COUNT_HW_INSTRUCTIONS);
     }
 
     void _dequeue(PG *pg) override {
       for (list<PG*>::iterator i = peering_queue.begin();
-	   i != peering_queue.end();
-	   ) {
-	if (*i == pg) {
-	  peering_queue.erase(i++);
-	  pg->put("PeeringWQ");
-	} else {
-	  ++i;
-	}
+        i != peering_queue.end();
+        ) {
+        if (*i == pg) {
+          peering_queue.erase(i++);
+          pg->put("PeeringWQ");
+        } else {
+          ++i;
+        }
       }
     }
     bool _enqueue(PG *pg) override {
-      uint64_t counter = libperf_readcounter(pd, LIBPERF_COUNT_HW_INSTRUCTIONS);
+      // static ofstream myfile("/tmp/osd-stats");
+      // uint64_t counter = libperf_readcounter(pd, LIBPERF_COUNT_HW_CACHE_MISSES);
+      // // TODO what happens during CPU migrations?
+      // int current_cpu = sched_getcpu();
+      // unsigned int *pos;
+      // pos = &(counters[current_cpu].pos);
       pg->get("PeeringWQ");
       peering_queue.push_back(pg);
-      counters.push_back(libperf_readcounter(pd, LIBPERF_COUNT_HW_INSTRUCTIONS)
-        - counter);
-      if (counters.size() % 100 == 0) {
-        ofstream myfile;
-        myfile.open ("/tmp/osd-stats");
-        for (int i = 0; i < counters.size(); i++) {
-          myfile << counters[i] << std::endl;
-        }
-        counters.clear();
-        myfile.close();
-      }
+      // // libperf_readcounter is thread-safe
+      // counters[current_cpu].entries[*pos].pmu1 =
+      //   libperf_readcounter(pd, LIBPERF_COUNT_HW_CACHE_MISSES) - counter;
+      // // if (*(pos) == PER_CPU_ALLOC) {
+      // //   for (unsigned int i = 0; i < *pos; i++) {
+      // //     myfile << counters[current_cpu].entries[i].pmu1 << std::endl;
+      // //   }
+      // //   *pos = 0;
+      // // } else {
+      // //   ++(*pos);
+      // // }
+
       return true;
     }
     bool _empty() override {

@@ -49,6 +49,10 @@
 #include "crc32c.h"
 #include "buffer_fwd.h"
 
+#include <libperf.h>
+#include <unistd.h>
+#define PER_CPU_ALLOC 2000
+
 #ifdef __CEPH__
 # include "include/assert.h"
 #else
@@ -352,79 +356,79 @@ namespace buffer CEPH_BUFFER_API {
     template <bool is_const>
     class CEPH_BUFFER_API iterator_impl
       : public std::iterator<std::forward_iterator_tag, char> {
-    protected:
-      typedef typename std::conditional<is_const,
-					const list,
-					list>::type bl_t;
-      typedef typename std::conditional<is_const,
-					const std::list<ptr>,
-					std::list<ptr> >::type list_t;
-      typedef typename std::conditional<is_const,
-					typename std::list<ptr>::const_iterator,
-					typename std::list<ptr>::iterator>::type list_iter_t;
-      bl_t* bl;
-      list_t* ls;  // meh.. just here to avoid an extra pointer dereference..
-      unsigned off; // in bl
-      list_iter_t p;
-      unsigned p_off;   // in *p
-      friend class iterator_impl<true>;
+      protected:
+        typedef typename std::conditional<is_const,
+            const list,
+            list>::type bl_t;
+        typedef typename std::conditional<is_const,
+            const std::list<ptr>,
+            std::list<ptr> >::type list_t;
+        typedef typename std::conditional<is_const,
+            typename std::list<ptr>::const_iterator,
+            typename std::list<ptr>::iterator>::type list_iter_t;
+        bl_t* bl;
+        list_t* ls;  // meh.. just here to avoid an extra pointer dereference..
+        unsigned off; // in bl
+        list_iter_t p;
+        unsigned p_off;   // in *p
+        friend class iterator_impl<true>;
 
-    public:
-      // constructor.  position.
-      iterator_impl()
-	: bl(0), ls(0), off(0), p_off(0) {}
-      iterator_impl(bl_t *l, unsigned o=0);
-      iterator_impl(bl_t *l, unsigned o, list_iter_t ip, unsigned po)
-	: bl(l), ls(&bl->_buffers), off(o), p(ip), p_off(po) {}
-      iterator_impl(const list::iterator& i);
+      public:
+        // constructor.  position.
+        iterator_impl()
+          : bl(0), ls(0), off(0), p_off(0) {}
+        iterator_impl(bl_t *l, unsigned o=0);
+        iterator_impl(bl_t *l, unsigned o, list_iter_t ip, unsigned po)
+          : bl(l), ls(&bl->_buffers), off(o), p(ip), p_off(po) {}
+        iterator_impl(const list::iterator& i);
 
-      /// get current iterator offset in buffer::list
-      unsigned get_off() const { return off; }
-      
-      /// get number of bytes remaining from iterator position to the end of the buffer::list
-      unsigned get_remaining() const { return bl->length() - off; }
+        /// get current iterator offset in buffer::list
+        unsigned get_off() const { return off; }
+        
+        /// get number of bytes remaining from iterator position to the end of the buffer::list
+        unsigned get_remaining() const { return bl->length() - off; }
 
-      /// true if iterator is at the end of the buffer::list
-      bool end() const {
-	return p == ls->end();
-	//return off == bl->length();
-      }
+        /// true if iterator is at the end of the buffer::list
+        bool end() const {
+          return p == ls->end();
+          //return off == bl->length();
+        }
 
-      void advance(int o);
-      void seek(unsigned o);
-      char operator*() const;
-      iterator_impl& operator++();
-      ptr get_current_ptr() const;
+        void advance(int o);
+        void seek(unsigned o);
+        char operator*() const;
+        iterator_impl& operator++();
+        ptr get_current_ptr() const;
 
-      bl_t& get_bl() const { return *bl; }
+        bl_t& get_bl() const { return *bl; }
 
-      // copy data out.
-      // note that these all _append_ to dest!
-      void copy(unsigned len, char *dest);
-      // deprecated, use copy_deep()
-      void copy(unsigned len, ptr &dest) __attribute__((deprecated));
-      void copy_deep(unsigned len, ptr &dest);
-      void copy_shallow(unsigned len, ptr &dest);
-      void copy(unsigned len, list &dest);
-      void copy(unsigned len, std::string &dest);
-      void copy_all(list &dest);
+        // copy data out.
+        // note that these all _append_ to dest!
+        void copy(unsigned len, char *dest);
+        // deprecated, use copy_deep()
+        void copy(unsigned len, ptr &dest) __attribute__((deprecated));
+        void copy_deep(unsigned len, ptr &dest);
+        void copy_shallow(unsigned len, ptr &dest);
+        void copy(unsigned len, list &dest);
+        void copy(unsigned len, std::string &dest);
+        void copy_all(list &dest);
 
-      // get a pointer to the currenet iterator position, return the
-      // number of bytes we can read from that position (up to want),
-      // and advance the iterator by that amount.
-      size_t get_ptr_and_advance(size_t want, const char **p);
+        // get a pointer to the currenet iterator position, return the
+        // number of bytes we can read from that position (up to want),
+        // and advance the iterator by that amount.
+        size_t get_ptr_and_advance(size_t want, const char **p);
 
-      /// calculate crc from iterator position
-      uint32_t crc32c(size_t length, uint32_t crc);
+        /// calculate crc from iterator position
+        uint32_t crc32c(size_t length, uint32_t crc);
 
-      friend bool operator==(const iterator_impl& lhs,
-			     const iterator_impl& rhs) {
-	return &lhs.get_bl() == &rhs.get_bl() && lhs.get_off() == rhs.get_off();
-      }
-      friend bool operator!=(const iterator_impl& lhs,
-			     const iterator_impl& rhs) {
-	return &lhs.get_bl() != &rhs.get_bl() || lhs.get_off() != rhs.get_off();
-      }
+        friend bool operator==(const iterator_impl& lhs,
+            const iterator_impl& rhs) {
+          return &lhs.get_bl() == &rhs.get_bl() && lhs.get_off() == rhs.get_off();
+        }
+        friend bool operator!=(const iterator_impl& lhs,
+            const iterator_impl& rhs) {
+          return &lhs.get_bl() != &rhs.get_bl() || lhs.get_off() != rhs.get_off();
+        }
     };
 
   public:
@@ -461,7 +465,7 @@ namespace buffer CEPH_BUFFER_API {
 	return bl == rhs.bl && off == rhs.off;
       }
       bool operator!=(const iterator& rhs) const {
-	return bl != rhs.bl || off != rhs.off;
+	      return bl != rhs.bl || off != rhs.off;
       }
     };
 
@@ -648,14 +652,14 @@ namespace buffer CEPH_BUFFER_API {
   private:
     mutable iterator last_p;
     int zero_copy_to_fd(int fd) const;
+    struct libperf_data *pd;
+    measurement_cpu_perf *counters;
 
   public:
     // cons/des
-    list() : _len(0), _memcopy_count(0), last_p(this) {}
+    list();
     // cppcheck-suppress noExplicitConstructor
-    list(unsigned prealloc) : _len(0), _memcopy_count(0), last_p(this) {
-      reserve(prealloc);
-    }
+    list(unsigned prealloc);
 
     list(const list& other) : _buffers(other._buffers), _len(other._len),
 			      _memcopy_count(other._memcopy_count), last_p(this) {
@@ -666,7 +670,7 @@ namespace buffer CEPH_BUFFER_API {
       if (this != &other) {
         _buffers = other._buffers;
         _len = other._len;
-	make_shareable();
+	      make_shareable();
       }
       return *this;
     }
@@ -726,13 +730,13 @@ namespace buffer CEPH_BUFFER_API {
     }
     void push_front(ptr& bp) {
       if (bp.length() == 0)
-	return;
+	      return;
       _buffers.push_front(bp);
       _len += bp.length();
     }
     void push_front(ptr&& bp) {
       if (bp.length() == 0)
-	return;
+	      return;
       _len += bp.length();
       _buffers.push_front(std::move(bp));
     }
@@ -741,13 +745,13 @@ namespace buffer CEPH_BUFFER_API {
     }
     void push_back(const ptr& bp) {
       if (bp.length() == 0)
-	return;
+      	return;
       _buffers.push_back(bp);
       _len += bp.length();
     }
     void push_back(ptr&& bp) {
       if (bp.length() == 0)
-	return;
+	      return;
       _len += bp.length();
       _buffers.push_back(std::move(bp));
     }
@@ -871,6 +875,7 @@ namespace buffer CEPH_BUFFER_API {
     uint32_t crc32c(uint32_t crc) const;
     void invalidate_crc();
   };
+  // BUFFERLIST END
 
   /*
    * efficient hash of one or more bufferlists

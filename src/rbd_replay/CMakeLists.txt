@@ -1,3 +1,4 @@
+set(EXTRA_LIBS ${EXTRA_LIBS} perf)
 set(librbd_replay_types_srcs
     ActionTypes.cc)
 add_library(rbd_replay_types STATIC ${librbd_replay_types_srcs})
@@ -15,7 +16,7 @@ target_link_libraries(rbd_replay LINK_PRIVATE librbd librados global)
 add_executable(rbd-replay
   rbd-replay.cc)
 target_link_libraries(rbd-replay
-  librbd librados global rbd_replay rbd_replay_types ceph-common)
+  librbd librados global rbd_replay rbd_replay_types ceph-common ${EXTRA_LIBS})
 install(TARGETS rbd-replay DESTINATION bin)
 
 set(librbd_replay_ios_srcs

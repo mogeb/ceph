@@ -1,3 +1,4 @@
+set(EXTRALIBS ${EXTRALIBS} perf)
 add_executable(ceph_test_objectcacher_stress
   object_cacher_stress.cc
   FakeWriteback.cc

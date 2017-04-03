@@ -1,3 +1,4 @@
+set(EXTRALIBS ${EXTRALIBS} perf)
 # test_rados
 add_executable(ceph_test_rados 
   TestRados.cc

@@ -1,3 +1,4 @@
+set(EXTRALIBS ${EXTRALIBS} perf)
 set(librbd_test
   test_fixture.cc
   test_support.cc
@@ -106,7 +107,8 @@ target_link_libraries(ceph_test_librbd
   cls_rbd_client
   rados_a
   ${UNITTEST_LIBS}
-  radostest)
+  radostest
+  perf)
 set_target_properties(ceph_test_librbd PROPERTIES COMPILE_FLAGS
   ${UNITTEST_CXX_FLAGS})
 

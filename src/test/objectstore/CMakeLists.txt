@@ -1,3 +1,4 @@
+set(EXTRALIBS ${EXTRALIBS} perf)
 #ceph_perf_objectstore
 add_executable(ceph_perf_objectstore 
   ObjectStoreTransactionBenchmark.cc
@@ -142,7 +143,7 @@ endif(HAVE_LIBAIO)
 add_executable(unittest_transaction
   test_transaction.cc)
 add_ceph_unittest(unittest_transaction ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/unittest_transaction)
-target_link_libraries(unittest_transaction os ceph-common ${XIO_LIBRARY})
+target_link_libraries(unittest_transaction os ceph-common ${XIO_LIBRARY} perf)
 
 # unittest_memstore_clone
 add_executable(unittest_memstore_clone

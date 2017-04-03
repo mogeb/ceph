@@ -69,7 +69,7 @@ set_target_properties(ceph_test_rados_api_pool PROPERTIES COMPILE_FLAGS
   ${UNITTEST_CXX_FLAGS}
   )
 target_link_libraries(ceph_test_rados_api_pool
-  rados_a ${UNITTEST_LIBS} radostest)
+  rados_a ${UNITTEST_LIBS} radostest perf)
 
 # ceph_test_rados_api_stat
 add_executable(ceph_test_rados_api_stat
@@ -78,7 +78,7 @@ add_executable(ceph_test_rados_api_stat
 set_target_properties(ceph_test_rados_api_stat PROPERTIES COMPILE_FLAGS
   ${UNITTEST_CXX_FLAGS})
 target_link_libraries(ceph_test_rados_api_stat
-  rados_a ${UNITTEST_LIBS} radostest)
+  rados_a ${UNITTEST_LIBS} radostest perf)
 
 # ceph_test_rados_api_watch_notify
 add_executable(ceph_test_rados_api_watch_notify
@@ -87,7 +87,7 @@ add_executable(ceph_test_rados_api_watch_notify
 set_target_properties(ceph_test_rados_api_watch_notify PROPERTIES COMPILE_FLAGS
   ${UNITTEST_CXX_FLAGS})
 target_link_libraries(ceph_test_rados_api_watch_notify
-  rados_a ${UNITTEST_LIBS} radostest)
+  rados_a ${UNITTEST_LIBS} radostest perf)
 
 # ceph_test_rados_api_cls
 add_executable(ceph_test_rados_api_cls
@@ -96,7 +96,7 @@ add_executable(ceph_test_rados_api_cls
 set_target_properties(ceph_test_rados_api_cls PROPERTIES COMPILE_FLAGS
   ${UNITTEST_CXX_FLAGS})
 target_link_libraries(ceph_test_rados_api_cls
-  rados_a ${UNITTEST_LIBS} radostest)
+  rados_a ${UNITTEST_LIBS} radostest perf)
 
 # ceph_test_rados_api_misc
 add_executable(ceph_test_rados_api_misc
@@ -115,7 +115,7 @@ add_executable(ceph_test_rados_api_lock
 set_target_properties(ceph_test_rados_api_lock PROPERTIES COMPILE_FLAGS
   ${UNITTEST_CXX_FLAGS})
 target_link_libraries(ceph_test_rados_api_lock
-  rados_a ${UNITTEST_LIBS} radostest)
+  rados_a ${UNITTEST_LIBS} radostest perf)
 
 # ceph_test_rados_api_tier
 add_executable(ceph_test_rados_api_tier
@@ -134,7 +134,7 @@ add_executable(ceph_test_rados_api_snapshots
 set_target_properties(ceph_test_rados_api_snapshots PROPERTIES COMPILE_FLAGS
   ${UNITTEST_CXX_FLAGS})
 target_link_libraries(ceph_test_rados_api_snapshots
-  rados_a ${UNITTEST_LIBS} radostest)
+  rados_a ${UNITTEST_LIBS} radostest perf)
 
 install(TARGETS
   ceph_test_rados_api_aio

@@ -1,5 +1,5 @@
 #!/bin/sh -x
-git submodule update --init --recursive
+#git submodule update --init --recursive
 if test -e build; then
     echo 'build dir already exists; rm -rf build and re-run'
     exit 1
@@ -7,6 +7,7 @@ fi
 mkdir build
 cd build
 cmake -DBOOST_J=$(nproc) "$@" ..
+#cmake -DBOOST_J=$(nproc) -DCMAKE_BUILD_TYPE=Debug -DWITH_LTTNG=ON -DWITH_CCACHE=ON "$@" ..
 
 # minimal config to find plugins
 cat <<EOF > ceph.conf

@@ -1,4 +1,5 @@
 include(GetGitRevisionDescription)
+set(EXTRA_LIBS ${EXTRA_LIBS} perf)
 
 enable_language(C ASM)
 include(GNUInstallDirs)
@@ -590,7 +591,7 @@ add_library(common STATIC ${ceph_common_objs})
 target_link_libraries(common ${ceph_common_deps})
 
 add_library(ceph-common SHARED ${ceph_common_objs})
-target_link_libraries(ceph-common ${ceph_common_deps})
+target_link_libraries(ceph-common ${ceph_common_deps} ${EXTRA_LIBS})
 # appease dpkg-shlibdeps
 set_target_properties(ceph-common PROPERTIES
   SOVERSION 0
@@ -637,7 +638,7 @@ if (WITH_MGR)
                  $<TARGET_OBJECTS:heap_profiler_objs>)
   target_include_directories(ceph-mgr PRIVATE "${PYTHON_INCLUDE_DIRS}")
   target_link_libraries(ceph-mgr mds osdc global-static common
-      ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES} ${BLKID_LIBRARIES} ${CMAKE_DL_LIBS} ${ALLOC_LIBS})
+      ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES} ${BLKID_LIBRARIES} ${CMAKE_DL_LIBS} ${ALLOC_LIBS} perf)
   install(TARGETS ceph-mgr DESTINATION bin)
 endif (WITH_MGR)
 
@@ -645,7 +646,8 @@ set(librados_config_srcs
   librados-config.cc)
 add_executable(librados-config ${librados_config_srcs})
 target_link_libraries(librados-config librados global ${BLKID_LIBRARIES} ${RDMA_LIBRARIES}
-  ${CMAKE_DL_LIBS})
+  ${CMAKE_DL_LIBS}
+  ${EXTRA_LIBS})
 
 install(TARGETS librados-config DESTINATION bin)
 
@@ -729,7 +731,7 @@ add_executable(ceph-mon ${ceph_mon_srcs}
 add_dependencies(ceph-mon erasure_code_plugins)
 target_link_libraries(ceph-mon mon common os global-static common
   ${EXTRALIBS}
-  ${CMAKE_DL_LIBS})
+  ${CMAKE_DL_LIBS} perf)
 install(TARGETS ceph-mon DESTINATION bin)
 
 # OSD/ObjectStore
@@ -812,7 +814,7 @@ set(ceph_mds_srcs
 add_executable(ceph-mds ${ceph_mds_srcs}
   $<TARGET_OBJECTS:common_util_obj>)
 target_link_libraries(ceph-mds mds ${CMAKE_DL_LIBS} global-static common
-  ${Boost_THREAD_LIBRARY})
+  ${Boost_THREAD_LIBRARY} perf)
 install(TARGETS ceph-mds DESTINATION bin)
 
 add_subdirectory(erasure-code)
@@ -896,7 +898,7 @@ if(WITH_LIBCEPHFS)
   set(libcephfs_srcs libcephfs.cc)
   add_library(cephfs ${CEPH_SHARED} ${libcephfs_srcs})
   target_link_libraries(cephfs LINK_PRIVATE client ceph-common
-    ${CRYPTO_LIBS} ${EXTRALIBS})
+    ${CRYPTO_LIBS} ${EXTRALIBS} perf)
   if(ENABLE_SHARED)
     foreach(name ceph-common client osdc)
       set(CEPHFS_LINK_FLAGS "${CEPHFS_LINK_FLAGS} -Wl,--exclude-libs,lib${name}.a")
@@ -915,7 +917,7 @@ if(WITH_LIBCEPHFS)
     ceph_syn.cc
     client/SyntheticClient.cc)
   add_executable(ceph-syn ${ceph_syn_srcs})
-  target_link_libraries(ceph-syn client global-static common)
+  target_link_libraries(ceph-syn client global-static common perf)
 
   set(mount_ceph_srcs
     mount/mount.ceph.c)
@@ -935,7 +937,7 @@ if(WITH_LIBCEPHFS)
       client/fuse_ll.cc)
     add_executable(ceph-fuse ${ceph_fuse_srcs})
     target_link_libraries(ceph-fuse ${ALLOC_LIBS} ${FUSE_LIBRARIES}
-      client common global-static)
+      client common global-static perf)
     set_target_properties(ceph-fuse PROPERTIES COMPILE_FLAGS "-I${FUSE_INCLUDE_DIRS}")
     install(TARGETS ceph-fuse DESTINATION bin)
     install(PROGRAMS mount.fuse.ceph DESTINATION ${CMAKE_INSTALL_SBINDIR})

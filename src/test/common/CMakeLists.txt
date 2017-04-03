@@ -1,3 +1,4 @@
+set(EXTRALIBS ${EXTRALIBS} perf)
 # get_command_descriptions
 add_executable(get_command_descriptions
   get_command_descriptions.cc
@@ -157,7 +158,7 @@ add_executable(unittest_xmlformatter
     test_xmlformatter.cc
     )
 add_ceph_unittest(unittest_xmlformatter ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/unittest_xmlformatter)
-target_link_libraries(unittest_xmlformatter ceph-common)
+target_link_libraries(unittest_xmlformatter ceph-common perf)
 
 # unittest_bit_vector
 add_executable(unittest_bit_vector
@@ -236,12 +237,12 @@ add_executable(unittest_back_trace
   test_back_trace.cc)
 set_source_files_properties(test_back_trace.cc PROPERTIES
   COMPILE_FLAGS -fno-inline)
-target_link_libraries(unittest_back_trace ceph-common)
+target_link_libraries(unittest_back_trace ceph-common perf)
 add_ceph_unittest(unittest_back_trace
   ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/unittest_back_trace)
 
 add_executable(unittest_hostname
     test_hostname.cc)
-target_link_libraries(unittest_hostname ceph-common)
+target_link_libraries(unittest_hostname ceph-common perf)
 add_ceph_unittest(unittest_hostname
   ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/unittest_hostname)

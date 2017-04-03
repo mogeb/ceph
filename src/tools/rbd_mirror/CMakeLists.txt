@@ -1,3 +1,4 @@
+set(EXTRA_LIBS ${EXTRA_LIBS} perf)
 add_library(rbd_mirror_types STATIC
   leader_watcher/Types.cc)
 
@@ -48,5 +49,6 @@ target_link_libraries(rbd-mirror
   cls_rbd_client
   cls_lock_client
   cls_journal_client
-  global)
+  global
+  ${EXTRA_LIBS})
 install(TARGETS rbd-mirror DESTINATION bin)

@@ -1,3 +1,4 @@
+set(EXTRALIBS ${EXTRALIBS} perf)
 add_executable(simple_server
   simple_server.cc
   simple_dispatcher.cc

@@ -34,6 +34,7 @@ foreach(python_version ${py_vers})
     add_dependencies(cython${PYTHON_VERSION}_modules cython${PYTHON_VERSION}_rgw)
   endif()
 
+  target_link_libraries(cython${PYTHON_VERSION}_modules perf)
   # if CMAKE_INSTALL_PREFIX is an empty string, must replace
   # it with "/" to make PYTHON_INSTALL_TEMPLATE an absolute path to be
   # consistent with all other installation paths.
