@@ -187,8 +187,10 @@ public:
 					    NULL); // metadata
     ASSERT_EXIT(trace_handle >= 0, "Error loading trace file");
 
-    uint64_t start_time_ns = bt_trace_handle_get_timestamp_begin(ctx, trace_handle, BT_CLOCK_REAL);
-    ASSERT_EXIT(start_time_ns != -1ULL,
+    int64_t start_time_ns;
+    int ret = bt_trace_handle_get_timestamp_begin(ctx,
+            trace_handle, BT_CLOCK_REAL, &start_time_ns);
+    ASSERT_EXIT(ret != -1,
                 "Error extracting creation time from trace");
 
     struct bt_ctf_iter *itr = bt_ctf_iter_create(ctx,
@@ -214,8 +216,9 @@ public:
       if(!evt) {
 	break;
       }
-      uint64_t ts = bt_ctf_get_timestamp(evt);
-      ASSERT_EXIT(ts != -1ULL, "Error extracting event timestamp");
+      int64_t ts;
+      int ret = bt_ctf_get_timestamp(evt, &ts);
+      ASSERT_EXIT(ret != -1, "Error extracting event timestamp");
 
       if (first) {
 	trace_start = ts;
