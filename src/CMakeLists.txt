@@ -1038,6 +1038,12 @@ if(WITH_RADOSGW)
   add_dependencies(vstart radosgw radosgw-admin)
 endif(WITH_RADOSGW)
 
+if(WITH_LTTNG)
+  add_dependencies(vstart rados_tp)
+  add_dependencies(vstart os_tp)
+  add_dependencies(vstart osd_tp)
+  add_dependencies(vstart rbd_tp)
+endif(WITH_LTTNG)
 
 # Everything you need to run CephFS tests
 add_custom_target(cephfs_testing DEPENDS
