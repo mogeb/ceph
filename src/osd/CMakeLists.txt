@@ -2,6 +2,9 @@ set(osdc_osd_srcs
   ${CMAKE_SOURCE_DIR}/src/osdc/Objecter.cc
   ${CMAKE_SOURCE_DIR}/src/osdc/Striper.cc)
 
+SET(GCC_C_FLAGS "-finstrument-functions -finstrument-functions-exclude-function-list=btowc,_mm_movemask_epi8,_mm_cmpeq_epi32,_mm_setzero_si128,_mm_cmpeq_epi32,_mm_loadu_si128,_mm_set_epi32,_mm_set_epi64,_mm_set_epi16,_mm_set_epi8 -fno-pie")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_C_FLAGS}")
+
 set(osd_srcs
   OSD.cc
   Watch.cc
