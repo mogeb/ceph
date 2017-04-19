@@ -466,6 +466,8 @@ endif(LINUX)
 option(WITH_ASAN "build with ASAN" OFF)
 option(WITH_ASAN_LEAK "explicitly enable ASAN leak detection" OFF)
 
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-pie")
+
 if(WITH_ASAN)
   set(ASAN_CFLAGS "-fsanitize=address -fno-omit-frame-pointer")
   if(WITH_ASAN_LEAK)
