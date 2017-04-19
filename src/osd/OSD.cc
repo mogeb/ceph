@@ -148,6 +148,7 @@
 #define TRACEPOINT_DEFINE
 #define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
 #include "tracing/osd.h"
+#include "tracing/lttng_ust_cyg_profile.h"
 #undef TRACEPOINT_PROBE_DYNAMIC_LINKAGE
 #undef TRACEPOINT_DEFINE
 #else
@@ -179,6 +180,22 @@ void PGQueueable::RunVis::operator()(const PGScrub &op) {
 
 void PGQueueable::RunVis::operator()(const PGRecovery &op) {
   return osd->do_recovery(pg.get(), op.epoch_queued, op.reserved_pushes, handle);
+}
+
+void __cyg_profile_func_enter(void *this_fn, void *call_site)
+    __attribute__((no_instrument_function));
+
+void __cyg_profile_func_exit(void *this_fn, void *call_site)
+    __attribute__((no_instrument_function));
+
+void __cyg_profile_func_enter(void *this_fn, void *call_site)
+{
+    tracepoint(lttng_ust_cyg_profile, func_entry, this_fn);
+}
+
+void __cyg_profile_func_exit(void *this_fn, void *call_site)
+{
+    // tracepoint(lttng_ust_cyg_profile, func_exit, this_fn);
 }
 
 //Initial features in new superblock.

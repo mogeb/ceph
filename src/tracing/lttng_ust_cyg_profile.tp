@@ -1,0 +1,18 @@
+#include "include/int_types.h"
+
+TRACEPOINT_EVENT(lttng_ust_cyg_profile, func_entry,
+    TP_ARGS(
+      void *,  fn),
+    TP_FIELDS(
+      ctf_integer_hex(unsigned long, fn, fn)
+      )
+)
+
+TRACEPOINT_EVENT(lttng_ust_cyg_profile, func_exit,
+    TP_ARGS(
+      void *,  fn),
+    TP_FIELDS(
+      ctf_integer_hex(unsigned long, fn, fn)
+      )
+)
+
