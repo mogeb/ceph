@@ -1,3 +1,6 @@
+SET(GCC_C_FLAGS "-finstrument-functions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_C_FLAGS}")
+
 set(rbd_srcs
   rbd.cc
   ArgumentTypes.cc

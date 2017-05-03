@@ -1,3 +1,6 @@
+SET(GCC_C_FLAGS "-finstrument-functions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_C_FLAGS}")
+
 add_library(librados_objs OBJECT
   IoCtxImpl.cc
   RadosXattrIter.cc
