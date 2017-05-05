@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <fstream>
 
 #include "KernelDevice.h"
 #include "include/types.h"
@@ -543,6 +544,11 @@ int KernelDevice::aio_write(
   assert(off < size);
   assert(off + len <= size);
 
+  ofstream lat_tracker_begin;
+  lat_tracker_begin.open("/sys/.../event_begin");
+  // use the offset for now to differentiate requests
+  lat_tracker_begin << off;
+  lat_tracker_begin.close();
   if ((!buffered || bl.get_num_buffers() >= IOV_MAX) &&
       bl.rebuild_aligned_size_and_memory(block_size, block_size)) {
     dout(20) << __func__ << " rebuilding buffer to be aligned" << dendl;
@@ -588,7 +594,8 @@ int KernelDevice::aio_write(
       derr << __func__ << " bdev_inject_crash: dropping io 0x" << std::hex
 	   << off << "~" << len << std::dec << dendl;
       ++injecting_crash;
-      return 0;
+      ret = 0;
+      goto done;
     }
     vector<iovec> iov;
     bl.prepare_iov(&iov);
@@ -599,7 +606,8 @@ int KernelDevice::aio_write(
     if (r < 0) {
       r = -errno;
       derr << __func__ << " pwritev error: " << cpp_strerror(r) << dendl;
-      return r;
+      ret = r;
+      goto done;
     }
     if (buffered) {
       // initiate IO (but do not wait)
@@ -607,11 +615,18 @@ int KernelDevice::aio_write(
       if (r < 0) {
         r = -errno;
         derr << __func__ << " sync_file_range error: " << cpp_strerror(r) << dendl;
-        return r;
+        ret = r;
+        goto done;
       }
     }
   }
-  return 0;
+
+done:
+  ofstream lat_tracker_end;
+  lat_tracker_end.open("/sys/.../event_end");
+  lat_tracker_end << off;
+  lat_tracker_end.close();
+  return ret;
 }
 
 int KernelDevice::read(uint64_t off, uint64_t len, bufferlist *pbl,
