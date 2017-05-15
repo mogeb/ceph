@@ -9843,6 +9843,7 @@ void OSD::ShardedOpWQ::_process(uint32_t thread_index, heartbeat_handle_d *hb)
 }
 
 void OSD::ShardedOpWQ::_enqueue(pair<spg_t, PGQueueable> item) {
+  tracepoint(osd, ShardedOpWQ__enqueue_begin, 0);
   uint32_t shard_index =
     item.first.hash_to_shard(shard_list.size());
 
@@ -9865,7 +9866,7 @@ void OSD::ShardedOpWQ::_enqueue(pair<spg_t, PGQueueable> item) {
   sdata->sdata_lock.Lock();
   sdata->sdata_cond.SignalOne();
   sdata->sdata_lock.Unlock();
-
+  tracepoint(osd, ShardedOpWQ__enqueue_end, 0);
 }
 
 void OSD::ShardedOpWQ::_enqueue_front(pair<spg_t, PGQueueable> item)

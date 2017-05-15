@@ -759,6 +759,22 @@ TRACEPOINT_EVENT(osd, do_osd_op_pre_omaprmkeys,
     )
 )
 
+TRACEPOINT_EVENT(osd, ShardedOpWQ__enqueue_begin,
+    TP_ARGS(
+        uint32_t, in),
+    TP_FIELDS(
+        ctf_integer(uint32_t, in, in)
+    )
+)
+
+TRACEPOINT_EVENT(osd, ShardedOpWQ__enqueue_end,
+    TP_ARGS(
+        uint32_t, in),
+    TP_FIELDS(
+        ctf_integer(uint32_t, in, in)
+    )
+)
+
 TRACEPOINT_EVENT(osd, do_osd_op_pre_copy_get_classic,
     TP_ARGS(
         const char*, oid,
