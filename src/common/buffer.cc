@@ -42,6 +42,12 @@
 #include <atomic>
 #include <ostream>
 
+#ifdef WITH_LTTNG
+#include "tracing/osd.h"
+#else
+#define tracepoint(...)
+#endif
+
 #define CEPH_BUFFER_ALLOC_UNIT  (MIN(CEPH_PAGE_SIZE, 4096))
 #define CEPH_BUFFER_APPEND_SIZE (CEPH_BUFFER_ALLOC_UNIT - sizeof(raw_combined))
 
@@ -1830,18 +1836,21 @@ static std::atomic_flag buffer_debug_lock = ATOMIC_FLAG_INIT;
   void buffer::list::append(const ptr& bp, unsigned off, unsigned len)
   {
     assert(len+off <= bp.length());
+    tracepoint(osd, bl_append, 0);
     if (!_buffers.empty()) {
       ptr &l = _buffers.back();
       if (l.get_raw() == bp.get_raw() &&
 	  l.end() == bp.start() + off) {
-	// yay contiguous with tail bp!
-	l.set_length(l.length()+len);
-	_len += len;
-	return;
+        // yay contiguous with tail bp!
+        l.set_length(l.length()+len);
+        _len += len;
+        tracepoint(osd, bl_append, 1);
+        return;
       }
     }
     // add new item to list
     push_back(ptr(bp, off, len));
+    tracepoint(osd, bl_append, 2);
   }
 
   void buffer::list::append(const list& bl)

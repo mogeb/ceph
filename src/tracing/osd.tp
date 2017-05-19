@@ -775,6 +775,46 @@ TRACEPOINT_EVENT(osd, ShardedOpWQ__enqueue_end,
     )
 )
 
+TRACEPOINT_EVENT(osd, ShardedOpWQ_pq_enqueue_strict_begin,
+    TP_ARGS(
+        uint32_t, in),
+    TP_FIELDS(
+        ctf_integer(uint32_t, in, in)
+    )
+)
+
+TRACEPOINT_EVENT(osd, ShardedOpWQ_pq_enqueue_strict_end,
+    TP_ARGS(
+        uint32_t, in),
+    TP_FIELDS(
+        ctf_integer(uint32_t, in, in)
+    )
+)
+
+TRACEPOINT_EVENT(osd, ShardedOpWQ_pq_enqueue_begin,
+    TP_ARGS(
+        uint32_t, in),
+    TP_FIELDS(
+        ctf_integer(uint32_t, in, in)
+    )
+)
+
+TRACEPOINT_EVENT(osd, ShardedOpWQ_pq_enqueue_end,
+    TP_ARGS(
+        uint32_t, in),
+    TP_FIELDS(
+        ctf_integer(uint32_t, in, in)
+    )
+)
+
+TRACEPOINT_EVENT(osd, bl_append,
+    TP_ARGS(
+        uint32_t, exiting_),
+    TP_FIELDS(
+        ctf_integer(uint32_t, exiting_, exiting_)
+    )
+)
+
 TRACEPOINT_EVENT(osd, do_osd_op_pre_copy_get_classic,
     TP_ARGS(
         const char*, oid,

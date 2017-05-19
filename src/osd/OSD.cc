@@ -9843,30 +9843,36 @@ void OSD::ShardedOpWQ::_process(uint32_t thread_index, heartbeat_handle_d *hb)
 }
 
 void OSD::ShardedOpWQ::_enqueue(pair<spg_t, PGQueueable> item) {
-  tracepoint(osd, ShardedOpWQ__enqueue_begin, 0);
   uint32_t shard_index =
     item.first.hash_to_shard(shard_list.size());
+//  tracepoint(osd, ShardedOpWQ__enqueue_begin, 0);
 
   ShardData* sdata = shard_list[shard_index];
+//  tracepoint(osd, ShardedOpWQ__enqueue_end, 0);
   assert (NULL != sdata);
+//  tracepoint(osd, ShardedOpWQ_pq_enqueue_strict_begin, 0);
   unsigned priority = item.second.get_priority();
+//  tracepoint(osd, ShardedOpWQ_pq_enqueue_strict_end, 0);
+//  tracepoint(osd, ShardedOpWQ_pq_enqueue_begin, 0);
   unsigned cost = item.second.get_cost();
+//  tracepoint(osd, ShardedOpWQ_pq_enqueue_end, 0);
   sdata->sdata_op_ordering_lock.Lock();
 
-  dout(20) << __func__ << " " << item.first << " " << item.second << dendl;
-  if (priority >= osd->op_prio_cutoff)
+//  dout(20) << __func__ << " " << item.first << " " << item.second << dendl;
+  if (priority >= osd->op_prio_cutoff) {
     sdata->pqueue->enqueue_strict(
       item.second.get_owner(), priority, item);
-  else
+  }
+  else {
     sdata->pqueue->enqueue(
       item.second.get_owner(),
       priority, cost, item);
+  }
   sdata->sdata_op_ordering_lock.Unlock();
 
   sdata->sdata_lock.Lock();
   sdata->sdata_cond.SignalOne();
   sdata->sdata_lock.Unlock();
-  tracepoint(osd, ShardedOpWQ__enqueue_end, 0);
 }
 
 void OSD::ShardedOpWQ::_enqueue_front(pair<spg_t, PGQueueable> item)
