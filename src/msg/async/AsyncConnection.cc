@@ -2242,7 +2242,7 @@ ssize_t AsyncConnection::write_message(Message *m, bufferlist& bl, bool more)
                              << " off " << header.data_off << dendl;
 
   if ((bl.length() <= ASYNC_COALESCE_THRESHOLD) && (bl.buffers().size() > 1)) {
-    std::list<buffer::ptr>::const_iterator pb;
+    std::vector<buffer::ptr>::const_iterator pb;
     for (pb = bl.buffers().begin(); pb != bl.buffers().end(); ++pb) {
       outcoming_bl.append((char*)pb->c_str(), pb->length());
     }

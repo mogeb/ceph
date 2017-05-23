@@ -343,7 +343,7 @@ namespace buffer CEPH_BUFFER_API {
 
   class CEPH_BUFFER_API list {
     // my private bits
-    std::list<ptr> _buffers;
+    std::vector<ptr> _buffers;
     unsigned _len;
     unsigned _memcopy_count; //the total of memcopy using rebuild().
     ptr append_buffer;  // where i put small appends.
@@ -357,14 +357,17 @@ namespace buffer CEPH_BUFFER_API {
       : public std::iterator<std::forward_iterator_tag, char> {
     protected:
       typedef typename std::conditional<is_const,
-					const list,
-					list>::type bl_t;
+                    const list,
+                    list>::type bl_t;
       typedef typename std::conditional<is_const,
-					const std::list<ptr>,
-					std::list<ptr> >::type list_t;
+                    const std::vector<ptr>,
+                    std::vector<ptr> >::type list_t;
       typedef typename std::conditional<is_const,
-					typename std::list<ptr>::const_iterator,
-					typename std::list<ptr>::iterator>::type list_iter_t;
+                    typename std::vector<ptr>::const_iterator,
+                    typename std::vector<ptr>::iterator>::type list_iter_t;
+//        typedef typename std::conditional<is_const,
+//                  typename std::vector<ptr>::const_iterator,
+//                  typename std::vector<ptr>::iterator>::type vector_iter_t;
       bl_t* bl;
       list_t* ls;  // meh.. just here to avoid an extra pointer dereference..
       unsigned off; // in bl
@@ -379,6 +382,8 @@ namespace buffer CEPH_BUFFER_API {
       iterator_impl(bl_t *l, unsigned o=0);
       iterator_impl(bl_t *l, unsigned o, list_iter_t ip, unsigned po)
 	: bl(l), ls(&bl->_buffers), off(o), p(ip), p_off(po) {}
+//      iterator_impl(bl_t *l, unsigned o, vector_iter_t ip, unsigned po)
+//    : bl(l), ls(&bl->_buffers), off(o), p(ip), p_off(po) {}
       iterator_impl(const list::iterator& i);
 
       /// get current iterator offset in buffer::list
@@ -689,7 +694,7 @@ namespace buffer CEPH_BUFFER_API {
     const ptr& back() const { return _buffers.back(); }
 
     unsigned get_memcopy_count() const {return _memcopy_count; }
-    const std::list<ptr>& buffers() const { return _buffers; }
+    const std::vector<ptr>& buffers() const { return _buffers; }
     void swap(list& other);
     unsigned length() const {
 #if 0
@@ -730,14 +735,25 @@ namespace buffer CEPH_BUFFER_API {
     void push_front(ptr& bp) {
       if (bp.length() == 0)
 	return;
-      _buffers.push_front(bp);
+//      _buffers.push_front(bp);
+      _buffers.push_back(bp);
+      for (int i = _buffers.size() - 1; i > 0; i--) {
+          _buffers[i] = _buffers[i - 1];
+      }
+      _buffers[0] = bp;
       _len += bp.length();
     }
     void push_front(ptr&& bp) {
       if (bp.length() == 0)
 	return;
       _len += bp.length();
-      _buffers.push_front(std::move(bp));
+//      _buffers.push_front(std::move(bp));
+
+      _buffers.push_back(bp);
+      for (int i = _buffers.size() - 1; i > 0; i--) {
+          _buffers[i] = _buffers[i - 1];
+      }
+      _buffers[0] = std::move(bp);
     }
     void push_front(raw *r) {
       push_front(ptr(r));
@@ -786,7 +802,7 @@ namespace buffer CEPH_BUFFER_API {
 
     // clone non-shareable buffers (make shareable)
     void make_shareable() {
-      std::list<buffer::ptr>::iterator pb;
+      std::vector<buffer::ptr>::iterator pb;
       for (pb = _buffers.begin(); pb != _buffers.end(); ++pb) {
         (void) pb->make_shareable();
       }
@@ -797,7 +813,7 @@ namespace buffer CEPH_BUFFER_API {
     {
       if (this != &bl) {
         clear();
-        std::list<buffer::ptr>::const_iterator pb;
+        std::vector<buffer::ptr>::const_iterator pb;
         for (pb = bl._buffers.begin(); pb != bl._buffers.end(); ++pb) {
           push_back(*pb);
         }

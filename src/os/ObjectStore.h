@@ -730,8 +730,8 @@ public:
       vector<__le32> &cm,
       vector<__le32> &om) {
 
-      list<bufferptr> list = bl.buffers();
-      std::list<bufferptr>::iterator p;
+      std::vector<bufferptr> list = bl.buffers();
+      std::vector<bufferptr>::iterator p;
 
       for(p = list.begin(); p != list.end(); ++p) {
         assert(p->length() % sizeof(Op) == 0);

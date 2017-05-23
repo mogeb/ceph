@@ -64,8 +64,8 @@ private:
 	mdata_hook(&mp);
 
       if (free_data)  {
-	const std::list<buffer::ptr>& buffers = data.buffers();
-	list<bufferptr>::const_iterator pb;
+    const std::vector<buffer::ptr>& buffers = data.buffers();
+    std::vector<bufferptr>::const_iterator pb;
 	for (pb = buffers.begin(); pb != buffers.end(); ++pb) {
 	  free((void*) pb->c_str());
 	}
