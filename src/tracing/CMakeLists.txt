@@ -43,11 +43,12 @@ endfunction()
 
 set(osd_traces oprequest.tp osd.tp pg.tp)
 add_tracing_library(osd_tp "${osd_traces}" 1.0.0)
+add_tracing_library(mon_tp mon.tp 1.0.0)
 add_tracing_library(rados_tp librados.tp 2.0.0)
 add_tracing_library(rbd_tp librbd.tp 1.0.0)
 add_tracing_library(os_tp objectstore.tp 1.0.0)
 
-install(TARGETS rados_tp osd_tp rbd_tp os_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS rados_tp osd_tp rbd_tp os_tp mon_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})
 if(WITH_LTTNG AND WITH_EVENTTRACE)
   add_tracing_library(eventtrace_tp eventtrace.tp 1.0.0)
   install(TARGETS eventtrace_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})

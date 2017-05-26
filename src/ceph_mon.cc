@@ -32,6 +32,7 @@ using namespace std;
 
 #include "include/CompatSet.h"
 
+#include "common/TracepointProvider.h"
 #include "common/ceph_argparse.h"
 #include "common/pick_address.h"
 #include "common/Timer.h"
@@ -46,6 +47,13 @@ using namespace std;
 #include "include/assert.h"
 
 #define dout_subsys ceph_subsys_mon
+
+namespace {
+
+TracepointProvider::Traits mon_tracepoint_traits("libmon_tp.so",
+                                                "mon_tracing");
+
+} // anonymous namespace
 
 Monitor *mon = NULL;
 
@@ -742,6 +750,8 @@ int main(int argc, const char **argv)
     global_init_postfork_finish(g_ceph_context);
     prefork.daemonize();
   }
+
+  TracepointProvider::initialize<mon_tracepoint_traits>(g_ceph_context);
 
   msgr->start();
   mgr_msgr->start();
