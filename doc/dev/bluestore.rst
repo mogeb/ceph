@@ -44,7 +44,7 @@ Small write strategies
 Possible future modes
 ---------------------
 
-* *F*: Fragment lextent space by writing small piece of data into a
+* *F*: Fragment extent space by writing small piece of data into a
   piecemeal blob (that collects random, noncontiguous bits of data we
   need to write).
 

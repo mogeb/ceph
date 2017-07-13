@@ -25,7 +25,9 @@ Installing Blkin
 You can install Markos Kogias' upstream Blkin_ by hand.::
 
   cd blkin/
-  make && make install
+  cmake .
+  make
+  make install
 
 or build distribution packages using DistroReadyBlkin_, which also comes with
 pkgconfig support. If you choose the latter, then you must generate the

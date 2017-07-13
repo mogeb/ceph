@@ -102,7 +102,7 @@ define the false positive probability for the bloom filter (default is 0.05)::
 
  ceph osd pool set foo-hot hit_set_fpp 0.15
 
-The hit_set_count and hit_set_period define how much time each HitSet
+The ``hit_set_count`` and ``hit_set_period`` define how much time each HitSet
 should cover, and how many such HitSets to store.  Binning accesses
 over time allows Ceph to independently determine whether an object was
 accessed at least once and whether it was accessed more than once over
@@ -131,7 +131,7 @@ to flush or evict cache objects, all hit_set_count HitSets are loaded into RAM.
 Cache mode
 ~~~~~~~~~~
 
-The most important policy is the cache mode:
+The most important policy is the cache mode::
 
  ceph osd pool set foo-hot cache-mode writeback
 

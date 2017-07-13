@@ -27,10 +27,10 @@ How do we find the configuration file? Well, in order, we check:
 
 Each stanza of the configuration file describes the key-value pairs that will be in
 effect for a particular subset of the daemons. The "global" stanza applies to
-everything. The "mon", "osd", and "mds" stanzas specify settings to take effect
-for all monitors, all OSDs, and all mds servers, respectively.  A stanza of the
-form mon.$name, osd.$name, or mds.$name gives settings for the monitor, OSD, or
-MDS of that name, respectively. Configuration values that appear later in the
+everything. The "mon", "osd", "mds", and "mgr" stanzas specify settings to take effect
+for all monitors, all OSDs, all mds servers, and all managers respectively.  A stanza of the
+form mon.$name, osd.$name, mds.$name, and mgr.$name gives settings for the monitor, OSD,
+MDS, or MGR of that name, respectively. Configuration values that appear later in the
 file win over earlier ones.
 
 A sample configuration file can be found in src/sample.ceph.conf.
@@ -45,7 +45,7 @@ to how bash shell expansion works.
 
 A few additional special metavariables are also defined:
  - $host: expands to the current hostname
- - $type: expands to one of "mds", "osd", "mon", or "client"
+ - $type: expands to one of "mds", "osd", "mon", "mgr", or "client"
  - $id: expands to the daemon identifier. For ``osd.0``, this would be ``0``; for ``mds.a``, it would be ``a``; for ``client.admin``, it would be ``admin``.
  - $num: same as $id
  - $name: expands to $type.$id
@@ -67,24 +67,24 @@ The interface to implement is found in common/config_obs.h.
 The observer method should be preferred in new code because
  - It is more flexible, allowing the code to do whatever reinitialization needs
    to be done to implement the new configuration value.
- - It is the only way to create a std::string configuration variable that can
+ - It is the only way to create a ``std::string`` configuration variable that can
    be changed by injectargs.
  - Even for int-valued configuration options, changing the values in one thread
    while another thread is reading them can lead to subtle and
    impossible-to-diagnose bugs.
 
-For these reasons, reading directly from g_conf should be considered deprecated
-and not done in new code.  Do not ever alter g_conf.
+For these reasons, reading directly from ``g_conf`` should be considered deprecated
+and not done in new code.  Do not ever alter ``g_conf``.
 
 Changing configuration values
 ====================================================
 
-Configuration values can be changed by calling g_conf->set_val. After changing
-the configuration, you should call g_conf->apply_changes to re-run all the
+Configuration values can be changed by calling ``g_conf->set_val``. After changing
+the configuration, you should call ``g_conf->apply_changes`` to re-run all the
 affected configuration observers. For convenience, you can call
-g_conf->set_val_or_die to make a configuration change which you think should
+``g_conf->set_val_or_die`` to make a configuration change which you think should
 never fail.
 
-Injectargs, parse_argv, and parse_env are three other functions which modify
-the configuration. Just like with set_val, you should call apply_changes after
+Injectargs, ``parse_argv``, and ``parse_env`` are three other functions which modify
+the configuration. Just like with set_val, you should call ``apply_changes`` after
 calling these functions to make sure your changes get applied.
