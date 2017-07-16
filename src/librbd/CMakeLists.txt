@@ -4,6 +4,9 @@ add_library(rbd_types STATIC
   watcher/Types.cc
   WatchNotifyTypes.cc)
 
+SET(GCC_C_FLAGS "-finstrument-functions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_C_FLAGS}")
+
 set(librbd_internal_srcs
   AsyncObjectThrottle.cc
   AsyncRequest.cc
