@@ -18,8 +18,10 @@
 
 #include <sys/uio.h>
 
+#include "include/util.h"
 #include "include/compat.h"
 #include "include/mempool.h"
+
 #include "armor.h"
 #include "common/environment.h"
 #include "common/errno.h"
@@ -1491,8 +1493,11 @@ public:
     if (p == ls->end())
       seek(off);
     unsigned left = len;
-    for (std::list<ptr>::const_iterator i = otherl._buffers.begin();
-	 i != otherl._buffers.end();
+
+    for (auto i = otherl._buffers.cbegin();
+	     i != otherl._buffers.cend();
+//JFW    for (std::list<ptr>::const_iterator i = otherl._buffers.begin();
+//JFW	 i != otherl._buffers.end();
 	 ++i) {
       unsigned l = (*i).length();
       if (left < l)
@@ -1533,13 +1538,18 @@ public:
 
   bool buffer::list::contents_equal(const ceph::buffer::list& other) const
   {
+/* JFW: ...why not add a size() method and then:
+    return std::equal(_buffers.cbegin(), _buffers.cend(), other._buffers.cbegin()); */
+
     if (length() != other.length())
       return false;
 
     // buffer-wise comparison
     if (true) {
-      std::list<ptr>::const_iterator a = _buffers.begin();
-      std::list<ptr>::const_iterator b = other._buffers.begin();
+      auto a = _buffers.cbegin();
+      auto b = other._buffers.cbegin();
+/*JFW      std::list<ptr>::const_iterator a = _buffers.begin();
+      std::list<ptr>::const_iterator b = other._buffers.begin(); */
       unsigned aoff = 0, boff = 0;
       while (a != _buffers.end()) {
 	unsigned len = a->length() - aoff;
@@ -1578,7 +1588,8 @@ public:
 
   bool buffer::list::can_zero_copy() const
   {
-    for (std::list<ptr>::const_iterator it = _buffers.begin();
+    for (auto it = _buffers.cbegin();
+//JFW:    for (std::list<ptr>::const_iterator it = _buffers.begin();
 	 it != _buffers.end();
 	 ++it)
       if (!it->can_zero_copy())
@@ -1595,8 +1606,10 @@ public:
 
   bool buffer::list::is_aligned(unsigned align) const
   {
-    for (std::list<ptr>::const_iterator it = _buffers.begin();
-	 it != _buffers.end();
+    for (auto it = _buffers.cbegin();
+	     it != _buffers.cend();
+//JFW    for (std::list<ptr>::const_iterator it = _buffers.begin();
+//	 it != _buffers.end();
 	 ++it) 
       if (!it->is_aligned(align))
 	return false;
@@ -1605,8 +1618,11 @@ public:
 
   bool buffer::list::is_n_align_sized(unsigned align) const
   {
+    for (auto it = _buffers.cbegin();
+	     it != _buffers.cend();
+/* JFW:
     for (std::list<ptr>::const_iterator it = _buffers.begin();
-	 it != _buffers.end();
+	 it != _buffers.end();*/
 	 ++it) 
       if (!it->is_n_align_sized(align))
 	return false;
@@ -1616,8 +1632,11 @@ public:
   bool buffer::list::is_aligned_size_and_memory(unsigned align_size,
 						  unsigned align_memory) const
   {
+    for (auto it = _buffers.cbegin();
+	 it != _buffers.cend();
+/*JFW
     for (std::list<ptr>::const_iterator it = _buffers.begin();
-	 it != _buffers.end();
+	 it != _buffers.end();*/
 	 ++it) {
       if (!it->is_aligned(align_memory) || !it->is_n_align_sized(align_size))
 	return false;
@@ -1626,8 +1645,11 @@ public:
   }
 
   bool buffer::list::is_zero() const {
+    for (auto it = _buffers.cbegin();
+	 it != _buffers.cend();
+/*
     for (std::list<ptr>::const_iterator it = _buffers.begin();
-	 it != _buffers.end();
+	 it != _buffers.end();*/
 	 ++it) {
       if (!it->is_zero()) {
 	return false;
@@ -1638,8 +1660,11 @@ public:
 
   void buffer::list::zero()
   {
+    for (auto it = _buffers.begin();
+	 it != _buffers.cend();
+/*
     for (std::list<ptr>::iterator it = _buffers.begin();
-	 it != _buffers.end();
+	 it != _buffers.end();*/
 	 ++it)
       it->zero();
   }
@@ -1648,8 +1673,10 @@ public:
   {
     assert(o+l <= _len);
     unsigned p = 0;
-    for (std::list<ptr>::iterator it = _buffers.begin();
+    for (auto it = _buffers.begin();
 	 it != _buffers.end();
+/*JFW    for (std::list<ptr>::iterator it = _buffers.begin();
+	 it != _buffers.end();*/
 	 ++it) {
       if (p + it->length() > o) {
         if (p >= o && p+it->length() <= o+l) {
@@ -1736,8 +1763,11 @@ public:
   void buffer::list::rebuild(ptr& nb)
   {
     unsigned pos = 0;
+    for (auto it = _buffers.cbegin();
+	 it != _buffers.cend();
+/*
     for (std::list<ptr>::iterator it = _buffers.begin();
-	 it != _buffers.end();
+	 it != _buffers.end();*/
 	 ++it) {
       nb.copy_in(pos, it->length(), it->c_str(), false);
       pos += it->length();
@@ -1765,7 +1795,8 @@ public:
 	&& _len > (max_buffers * align_size)) {
       align_size = round_up_to(round_up_to(_len, max_buffers) / max_buffers, align_size);
     }
-    std::list<ptr>::iterator p = _buffers.begin();
+
+    auto p = _buffers.cbegin();
     while (p != _buffers.end()) {
       // keep anything that's already align and sized aligned
       if (p->is_aligned(align_memory) && p->is_n_align_sized(align_size)) {
@@ -1834,7 +1865,8 @@ public:
     _len += bl._len;
     if (!(flags & CLAIM_ALLOW_NONSHAREABLE))
       bl.make_shareable();
-    _buffers.splice(_buffers.end(), bl._buffers );
+    ceph::util::splice(_buffers, std::end(_buffers), bl._buffers);
+//JFW:    _buffers.splice(_buffers.end(), bl._buffers );
     bl._len = 0;
     bl.last_p = bl.begin();
   }
@@ -1845,7 +1877,8 @@ public:
     _len += bl._len;
     if (!(flags & CLAIM_ALLOW_NONSHAREABLE))
       bl.make_shareable();
-    _buffers.splice(_buffers.begin(), bl._buffers );
+    ceph::util::splice(_buffers, std::begin(_buffers), bl._buffers);
+//JFW:    _buffers.splice(_buffers.begin(), bl._buffers );
     bl._len = 0;
     bl.last_p = bl.begin();
     // we modified _buffers
@@ -1855,8 +1888,9 @@ public:
   void buffer::list::claim_append_piecewise(list& bl)
   {
     // steal the other guy's buffers
-    for (std::list<buffer::ptr>::const_iterator i = bl.buffers().begin();
-        i != bl.buffers().end(); i++) {
+    for (auto i = bl.buffers().cbegin();
+//JFW    for (std::list<buffer::ptr>::const_iterator i = bl.buffers().begin();
+        i != bl.buffers().cend(); i++) {
       append(*i, 0, i->length());
     }
     bl.clear();
@@ -1980,8 +2014,10 @@ public:
   void buffer::list::append(const list& bl)
   {
     _len += bl._len;
-    for (std::list<ptr>::const_iterator p = bl._buffers.begin();
-	 p != bl._buffers.end();
+    for (auto p = bl._buffers.cbegin();
+	 p != bl._buffers.cend();
+/*    for (std::list<ptr>::const_iterator p = bl._buffers.begin();
+	 p != bl._buffers.end();*/
 	 ++p) 
       _buffers.push_back(*p);
   }
@@ -2021,8 +2057,10 @@ public:
     if (n >= _len)
       throw end_of_buffer();
     
-    for (std::list<ptr>::const_iterator p = _buffers.begin();
-	 p != _buffers.end();
+    for (auto p = _buffers.cbegin();
+	 p != _buffers.cend();
+ /* JFW  for (std::list<ptr>::const_iterator p = _buffers.begin();
+	 p != _buffers.end();*/
 	 ++p) {
       if (n >= p->length()) {
 	n -= p->length();
@@ -2041,10 +2079,12 @@ public:
     if (_buffers.empty())
       return 0;                         // no buffers
 
-    std::list<ptr>::const_iterator iter = _buffers.begin();
+    auto iter = _buffers.cbegin();
+//JFW    std::list<ptr>::const_iterator iter = _buffers.begin();
     ++iter;
 
-    if (iter != _buffers.end())
+    if (iter != _buffers.cend())
+//    if (iter != _buffers.end())
       rebuild();
     return _buffers.front().c_str();  // good, we're already contiguous.
   }
@@ -2052,8 +2092,10 @@ public:
   string buffer::list::to_str() const {
     string s;
     s.reserve(length());
-    for (std::list<ptr>::const_iterator p = _buffers.begin();
-	 p != _buffers.end();
+    for (auto p = _buffers.cbegin();
+	 p != _buffers.cend();
+/*JFW:    for (std::list<ptr>::const_iterator p = _buffers.begin();
+	 p != _buffers.end();*/
 	 ++p) {
       if (p->length()) {
 	s.append(p->c_str(), p->length());
@@ -2072,7 +2114,8 @@ public:
     }
 
     unsigned off = orig_off;
-    std::list<ptr>::iterator curbuf = _buffers.begin();
+    auto curbuf = _buffers.begin();
+//JFW:    std::list<ptr>::iterator curbuf = _buffers.begin();
     while (off > 0 && off >= curbuf->length()) {
       off -= curbuf->length();
       ++curbuf;
@@ -2112,7 +2155,8 @@ public:
     clear();
 
     // skip off
-    std::list<ptr>::const_iterator curbuf = other._buffers.begin();
+    auto curbuf = other._buffers.cbegin();
+//JFW:    std::list<ptr>::const_iterator curbuf = other._buffers.begin();
     while (off > 0 &&
 	   off >= curbuf->length()) {
       // skip this buffer
@@ -2155,7 +2199,8 @@ public:
     //cout << "splice off " << off << " len " << len << " ... mylen = " << length() << std::endl;
       
     // skip off
-    std::list<ptr>::iterator curbuf = _buffers.begin();
+    auto curbuf = _buffers.begin();
+//JFW:    std::list<ptr>::iterator curbuf = _buffers.begin();
     while (off > 0) {
       assert(curbuf != _buffers.end());
       if (off >= (*curbuf).length()) {
@@ -2211,8 +2256,11 @@ public:
   {
     list s;
     s.substr_of(*this, off, len);
+    for (auto it = s._buffers.cbegin(); 
+	     it != s._buffers.cend(); 
+/* JFW:
     for (std::list<ptr>::const_iterator it = s._buffers.begin(); 
-	 it != s._buffers.end(); 
+	 it != s._buffers.end(); */
 	 ++it)
       if (it->length())
 	out.write(it->c_str(), it->length());
@@ -2403,7 +2451,8 @@ int buffer::list::write_fd(int fd) const
   int iovlen = 0;
   ssize_t bytes = 0;
 
-  std::list<ptr>::const_iterator p = _buffers.begin();
+  auto p = _buffers.cbegin();
+//JFW:  std::list<ptr>::const_iterator p = _buffers.begin();
   while (p != _buffers.end()) {
     if (p->length() > 0) {
       iov[iovlen].iov_base = (void *)p->c_str();
@@ -2452,7 +2501,8 @@ int buffer::list::write_fd(int fd, uint64_t offset) const
 {
   iovec iov[IOV_MAX];
 
-  std::list<ptr>::const_iterator p = _buffers.begin();
+  auto p = _buffers.cbegin();
+//JFW:  std::list<ptr>::const_iterator p = _buffers.begin();
   uint64_t left_pbrs = _buffers.size();
   while (left_pbrs) {
     ssize_t bytes = 0;
@@ -2489,8 +2539,11 @@ int buffer::list::write_fd_zero_copy(int fd) const
     return -errno;
   if (errno == ESPIPE)
     off_p = NULL;
+  for (auto it = _buffers.cbegin();
+       it != _buffers.cend(); ++it) {
+/* JFW:
   for (std::list<ptr>::const_iterator it = _buffers.begin();
-       it != _buffers.end(); ++it) {
+       it != _buffers.end(); ++it) { */
     int r = it->zero_copy_to_fd(fd, off_p);
     if (r < 0)
       return r;
@@ -2506,8 +2559,11 @@ __u32 buffer::list::crc32c(__u32 crc) const
   int cache_hits = 0;
   int cache_adjusts = 0;
 
+  for (auto it = _buffers.cbegin();
+       it != _buffers.cend();
+/* JFW:
   for (std::list<ptr>::const_iterator it = _buffers.begin();
-       it != _buffers.end();
+       it != _buffers.end();*/
        ++it) {
     if (it->length()) {
       raw *r = it->get_raw();
@@ -2553,7 +2609,8 @@ __u32 buffer::list::crc32c(__u32 crc) const
 
 void buffer::list::invalidate_crc()
 {
-  for (std::list<ptr>::const_iterator p = _buffers.begin(); p != _buffers.end(); ++p) {
+  for (auto p = _buffers.cbegin(); p != _buffers.cend(); ++p) {
+//JFW:  for (std::list<ptr>::const_iterator p = _buffers.begin(); p != _buffers.end(); ++p) {
     raw *r = p->get_raw();
     if (r) {
       r->invalidate_crc();
@@ -2566,7 +2623,8 @@ void buffer::list::invalidate_crc()
  */
 void buffer::list::write_stream(std::ostream &out) const
 {
-  for (std::list<ptr>::const_iterator p = _buffers.begin(); p != _buffers.end(); ++p) {
+  for (auto p = _buffers.cbegin(); p != _buffers.cend(); ++p) {
+//JFW:  for (std::list<ptr>::const_iterator p = _buffers.begin(); p != _buffers.end(); ++p) {
     if (p->length() > 0) {
       out.write(p->c_str(), p->length());
     }
@@ -2684,7 +2742,8 @@ std::ostream& buffer::operator<<(std::ostream& out, const buffer::ptr& bp) {
 std::ostream& buffer::operator<<(std::ostream& out, const buffer::list& bl) {
   out << "buffer::list(len=" << bl.length() << "," << std::endl;
 
-  std::list<buffer::ptr>::const_iterator it = bl.buffers().begin();
+  auto it = bl.buffers().cbegin();
+//JFW:  std::list<buffer::ptr>::const_iterator it = bl.buffers().begin();
   while (it != bl.buffers().end()) {
     out << "\t" << *it;
     if (++it == bl.buffers().end()) break;
