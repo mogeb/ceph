@@ -1952,7 +1952,7 @@ public:
     ptr bp(len);
     bp.zero(false);
     _len += len;
-    _buffers.emplace_front(std::move(bp));
+    _buffers.emplace(_buffers.begin(), std::move(bp));
   }
   
   void buffer::list::append_zero(unsigned len)
