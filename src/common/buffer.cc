@@ -1709,11 +1709,9 @@ public:
   void buffer::list::rebuild(ptr& nb)
   {
     unsigned pos = 0;
-    for (std::list<ptr>::iterator it = _buffers.begin();
-	 it != _buffers.end();
-	 ++it) {
-      nb.copy_in(pos, it->length(), it->c_str(), false);
-      pos += it->length();
+    for (auto& b : _buffers) {
+      nb.copy_in(pos, b.length(), b.c_str(), false);
+      pos += b.length();
     }
     _memcopy_count += pos;
     _buffers.clear();
@@ -1727,47 +1725,33 @@ public:
   {
     return rebuild_aligned_size_and_memory(align, align);
   }
-  
-  bool buffer::list::rebuild_aligned_size_and_memory(unsigned align_size,
-						    unsigned align_memory,
-						    unsigned max_buffers)
-  {
-    unsigned old_memcopy_count = _memcopy_count;
 
+  bool buffer::list::rebuild_aligned_size_and_memory(unsigned align_size,
+						     unsigned align_memory,
+						     unsigned max_buffers) {
+    unsigned old_memcopy_count = _memcopy_count;
     if (max_buffers && _buffers.size() > max_buffers
 	&& _len > (max_buffers * align_size)) {
       align_size = round_up_to(round_up_to(_len, max_buffers) / max_buffers, align_size);
     }
-    std::list<ptr>::iterator p = _buffers.begin();
+    auto p = _buffers.begin();
     while (p != _buffers.end()) {
       // keep anything that's already align and sized aligned
       if (p->is_aligned(align_memory) && p->is_n_align_sized(align_size)) {
-        /*cout << " segment " << (void*)p->c_str()
-  	     << " offset " << ((unsigned long)p->c_str() & (align - 1))
-  	     << " length " << p->length()
-  	     << " " << (p->length() & (align - 1)) << " ok" << std::endl;
-        */
         ++p;
         continue;
       }
-      
       // consolidate unaligned items, until we get something that is sized+aligned
       list unaligned;
       unsigned offset = 0;
       do {
-        /*cout << " segment " << (void*)p->c_str()
-               << " offset " << ((unsigned long)p->c_str() & (align - 1))
-               << " length " << p->length() << " " << (p->length() & (align - 1))
-               << " overall offset " << offset << " " << (offset & (align - 1))
-  	     << " not ok" << std::endl;
-        */
         offset += p->length();
         unaligned.push_back(*p);
         _buffers.erase(p++);
       } while (p != _buffers.end() &&
-  	     (!p->is_aligned(align_memory) ||
-  	      !p->is_n_align_sized(align_size) ||
-  	      (offset % align_size)));
+	     (!p->is_aligned(align_memory) ||
+	      !p->is_n_align_sized(align_size) ||
+	      (offset % align_size)));
       if (!(unaligned.is_contiguous() && unaligned._buffers.front().is_aligned(align_memory))) {
         ptr nb(buffer::create_aligned(unaligned._len, align_memory));
         unaligned.rebuild(nb);
@@ -1779,7 +1763,7 @@ public:
 
     return  (old_memcopy_count != _memcopy_count);
   }
-  
+
   bool buffer::list::rebuild_page_aligned()
   {
    return  rebuild_aligned(CEPH_PAGE_SIZE);
