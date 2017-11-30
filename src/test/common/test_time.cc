@@ -176,3 +176,33 @@ TEST(TimePoints, SignedSubtraciton) {
   ASSERT_GT(cmtb - cmta, ceph::signedspan::zero());
   ASSERT_GT((cmtb - cmta).count(), 0);
 }
+
+TEST(SteadyClock, DurationCastFromDoubleSeconds) {
+  mono_clock::duration d;
+  std::chrono::duration<double> d_double_secs(0.000123);
+
+  d = std::chrono::duration_cast<mono_clock::duration>(d_double_secs);
+
+  ASSERT_EQ(123000, d.count());
+}
+
+TEST(SteadyClock, DefaultDurationIsZero) {
+  mono_clock::duration elapsed;
+
+  ASSERT_EQ(0, elapsed.count());
+}
+
+TEST(SteadyClock, DefaultTimeIsZero) {
+  mono_time t1;
+
+  ASSERT_EQ(0, t1.time_since_epoch().count());
+}
+
+TEST(SteadyClock, DurationDiffIsNano) {
+  // Make sure subtracting two mono_clock::duration is also in nanoseconds.
+  mono_clock::duration d1 = std::chrono::nanoseconds(12345678912); // 12.345 seconds
+  mono_clock::duration d2 = std::chrono::nanoseconds(23455678912); // 23.455 seconds
+  mono_clock::duration diff = d2 - d1;
+
+  ASSERT_EQ(11110000000, diff.count());
+}

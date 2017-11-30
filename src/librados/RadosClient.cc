@@ -544,19 +544,22 @@ int librados::RadosClient::wait_for_osdmap()
   if (need_map) {
     Mutex::Locker l(lock);
 
-    utime_t timeout;
-    if (cct->_conf->rados_mon_op_timeout > 0)
-      timeout.set_from_double(cct->_conf->rados_mon_op_timeout);
+    mono_clock::duration timeout;
+    if (cct->_conf->rados_mon_op_timeout > 0) {
+      timeout = std::chrono::duration_cast<mono_clock::duration>(
+        std::chrono::duration<double>(cct->_conf->rados_mon_op_timeout)
+      );
+    }
 
     if (objecter->with_osdmap(std::mem_fn(&OSDMap::get_epoch)) == 0) {
       ldout(cct, 10) << __func__ << " waiting" << dendl;
-      utime_t start = ceph_clock_now();
+      mono_time start = mono_clock::now();
       while (objecter->with_osdmap(std::mem_fn(&OSDMap::get_epoch)) == 0) {
-        if (timeout.is_zero()) {
+        if (timeout.count() == 0) {
           cond.Wait(lock);
         } else {
           cond.WaitInterval(lock, timeout);
-          utime_t elapsed = ceph_clock_now() - start;
+          mono_clock::duration elapsed = mono_clock::now() - start;
           if (elapsed > timeout) {
             lderr(cct) << "timed out waiting for first osdmap from monitors"
                        << dendl;
