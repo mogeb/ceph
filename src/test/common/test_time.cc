@@ -14,6 +14,7 @@
  */
 
 #include <ctime>
+#include <thread>
 
 #include "common/ceph_time.h"
 #include "include/rados.h"
@@ -175,4 +176,13 @@ TEST(TimePoints, SignedSubtraciton) {
   ASSERT_LT((cmta - cmtb).count(), 0);
   ASSERT_GT(cmtb - cmta, ceph::signedspan::zero());
   ASSERT_GT((cmtb - cmta).count(), 0);
+}
+
+TEST(SteadyClock, TimeDiffCastIsDouble) {
+  mono_time t1 = mono_clock::now();
+  std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+  mono_time t2 = mono_clock::now();
+
+  ASSERT_TRUE(std::chrono::duration<double>(t2 - t1).count() > 1.4);
+  ASSERT_TRUE(std::chrono::duration<double>(t2 - t1).count() < 1.6);
 }
