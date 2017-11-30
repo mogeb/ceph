@@ -14,6 +14,7 @@
  */
 
 #include <ctime>
+#include <thread>
 
 #include "common/ceph_time.h"
 #include "include/rados.h"
@@ -205,4 +206,13 @@ TEST(SteadyClock, DurationDiffIsNano) {
   mono_clock::duration diff = d2 - d1;
 
   ASSERT_EQ(11110000000, diff.count());
+}
+
+TEST(SteadyClock, TimeDiffCastIsDouble) {
+  mono_time t1 = mono_clock::now();
+  std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+  mono_time t2 = mono_clock::now();
+
+  ASSERT_TRUE(std::chrono::duration<double>(t2 - t1).count() > 1.4);
+  ASSERT_TRUE(std::chrono::duration<double>(t2 - t1).count() < 1.6);
 }
