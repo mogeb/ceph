@@ -178,15 +178,15 @@ protected:
   OpTracker *tracker;          ///< the tracker we are associated with
   std::atomic_int nref = {0};  ///< ref count
 
-  utime_t initiated_at;
+  mono_time initiated_at;
 
   struct Event {
-    utime_t stamp;
+    mono_time stamp;
     string str;
     const char *cstr = nullptr;
 
-    Event(utime_t t, const string& s) : stamp(t), str(s) {}
-    Event(utime_t t, const char *s) : stamp(t), cstr(s) {}
+    Event(mono_time t, const string& s) : stamp(t), str(s) {}
+    Event(mono_time t, const char *s) : stamp(t), cstr(s) {}
 
     int compare(const char *s) const {
       if (cstr)
@@ -226,7 +226,7 @@ protected:
   mutable const char *desc = nullptr;  ///< readable without lock
   mutable atomic<bool> want_new_desc = {false};
 
-  TrackedOp(OpTracker *_tracker, const utime_t& initiated) :
+  TrackedOp(OpTracker *_tracker, const mono_time& initiated) :
     tracker(_tracker),
     initiated_at(initiated)
   {
@@ -298,22 +298,22 @@ public:
     want_new_desc = true;
   }
 
-  const utime_t& get_initiated() const {
+  const mono_time& get_initiated() const {
     return initiated_at;
   }
 
   double get_duration() const {
     Mutex::Locker l(lock);
     if (!events.empty() && events.rbegin()->compare("done") == 0)
-      return events.rbegin()->stamp - get_initiated();
+      return (events.rbegin()->stamp - get_initiated()).count();
     else
-      return ceph_clock_now() - get_initiated();
+      return (mono_clock::now() - get_initiated()).count();
   }
 
   void mark_event_string(const string &event,
 			 utime_t stamp=ceph_clock_now());
   void mark_event(const char *event,
-		  utime_t stamp=ceph_clock_now());
+                  mono_time stamp=mono_clock::now());
 
   virtual const char *state_string() const {
     Mutex::Locker l(lock);

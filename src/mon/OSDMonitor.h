@@ -26,6 +26,7 @@
 
 #include "include/types.h"
 #include "common/simple_cache.hpp"
+#include "common/ceph_time.h"
 #include "msg/Messenger.h"
 
 #include "osd/OSDMap.h"
@@ -44,23 +45,23 @@ class MOSDMap;
 
 /// information about a particular peer's failure reports for one osd
 struct failure_reporter_t {
-  utime_t failed_since;     ///< when they think it failed
+  mono_time failed_since;   ///< when they think it failed
   MonOpRequestRef op;       ///< failure op request
 
   failure_reporter_t() {}
-  explicit failure_reporter_t(utime_t s) : failed_since(s) {}
+  explicit failure_reporter_t(mono_time s) : failed_since(s) {}
   ~failure_reporter_t() { }
 };
 
 /// information about all failure reports for one osd
 struct failure_info_t {
   map<int, failure_reporter_t> reporters;  ///< reporter -> failed_since etc
-  utime_t max_failed_since;                ///< most recent failed_since
+  mono_time max_failed_since;              ///< most recent failed_since
 
   failure_info_t() {}
 
-  utime_t get_failed_since() {
-    if (max_failed_since == utime_t() && !reporters.empty()) {
+  mono_time get_failed_since() {
+    if (max_failed_since.time_since_epoch().count() == 0 && !reporters.empty()) {
       // the old max must have canceled; recalculate.
       for (map<int, failure_reporter_t>::iterator p = reporters.begin();
 	   p != reporters.end();
@@ -73,7 +74,7 @@ struct failure_info_t {
 
   // set the message for the latest report.  return any old op request we had,
   // if any, so we can discard it.
-  MonOpRequestRef add_report(int who, utime_t failed_since,
+  MonOpRequestRef add_report(int who, mono_time failed_since,
 			     MonOpRequestRef op) {
     map<int, failure_reporter_t>::iterator p = reporters.find(who);
     if (p == reporters.end()) {
@@ -142,8 +143,8 @@ public:
   SimpleLRU<version_t, bufferlist> inc_osd_cache;
   SimpleLRU<version_t, bufferlist> full_osd_cache;
 
-  bool check_failures(utime_t now);
-  bool check_failure(utime_t now, int target_osd, failure_info_t& fi);
+  bool check_failures(mono_time now);
+  bool check_failure(mono_time now, int target_osd, failure_info_t& fi);
   void force_failure(int target_osd, int by);
 
   // the time of last msg(MSG_ALIVE and MSG_PGTEMP) proposed without delay

@@ -234,14 +234,14 @@ protected:
 
   /* recv_stamp is set when the Messenger starts reading the
    * Message off the wire */
-  utime_t recv_stamp;
+  mono_time recv_stamp;
   /* dispatch_stamp is set when the Messenger starts calling dispatch() on
    * its endpoints */
-  utime_t dispatch_stamp;
+  mono_time dispatch_stamp;
   /* throttle_stamp is the point at which we got throttle */
-  utime_t throttle_stamp;
+  mono_time throttle_stamp;
   /* time at which message was fully read */
-  utime_t recv_complete_stamp;
+  mono_time recv_complete_stamp;
 
   ConnectionRef connection;
 
@@ -408,14 +408,14 @@ public:
   }
   off_t get_data_len() const { return data.length(); }
 
-  void set_recv_stamp(utime_t t) { recv_stamp = t; }
-  const utime_t& get_recv_stamp() const { return recv_stamp; }
-  void set_dispatch_stamp(utime_t t) { dispatch_stamp = t; }
-  const utime_t& get_dispatch_stamp() const { return dispatch_stamp; }
-  void set_throttle_stamp(utime_t t) { throttle_stamp = t; }
-  const utime_t& get_throttle_stamp() const { return throttle_stamp; }
-  void set_recv_complete_stamp(utime_t t) { recv_complete_stamp = t; }
-  const utime_t& get_recv_complete_stamp() const { return recv_complete_stamp; }
+  void set_recv_stamp(mono_time t) { recv_stamp = t; }
+  const mono_time& get_recv_stamp() const { return recv_stamp; }
+  void set_dispatch_stamp(mono_time t) { dispatch_stamp = t; }
+  const mono_time& get_dispatch_stamp() const { return dispatch_stamp; }
+  void set_throttle_stamp(mono_time t) { throttle_stamp = t; }
+  const mono_time& get_throttle_stamp() const { return throttle_stamp; }
+  void set_recv_complete_stamp(mono_time t) { recv_complete_stamp = t; }
+  const mono_time& get_recv_complete_stamp() const { return recv_complete_stamp; }
 
   void calc_header_crc() {
     header.crc = ceph_crc32c(0, (unsigned char*)&header,

@@ -3883,7 +3883,7 @@ void Monitor::waitlist_or_zap_client(MonOpRequestRef op)
   Message *m = op->get_req();
   MonSession *s = op->get_session();
   ConnectionRef con = op->get_connection();
-  utime_t too_old = ceph_clock_now();
+  mono_time too_old = mono_clock::now();
   too_old -= g_ceph_context->_conf->mon_lease;
   if (m->get_recv_stamp() > too_old &&
       con->is_connected()) {

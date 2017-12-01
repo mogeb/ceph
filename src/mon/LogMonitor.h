@@ -38,7 +38,7 @@ namespace logging {
 class LogMonitor : public PaxosService,
                    public md_config_obs_t {
 private:
-  multimap<utime_t,LogEntry> pending_log;
+  multimap<mono_time,LogEntry> pending_log;
   LogSummary pending_summary, summary;
 
   struct log_channel_info {

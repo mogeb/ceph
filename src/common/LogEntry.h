@@ -63,12 +63,12 @@ private:
   }
 
   entity_inst_t who;
-  utime_t stamp;
+  mono_time stamp;
   uint64_t seq = 0;
 
 public:
   LogEntryKey() {}
-  LogEntryKey(const entity_inst_t& w, utime_t t, uint64_t s)
+  LogEntryKey(const entity_inst_t& w, mono_time t, uint64_t s)
     : who(w), stamp(t), seq(s) {
     _calc_hash();
   }
@@ -99,7 +99,7 @@ namespace std {
 struct LogEntry {
   entity_inst_t who;
   EntityName name;
-  utime_t stamp;
+  mono_time stamp;
   uint64_t seq;
   clog_type prio;
   string msg;

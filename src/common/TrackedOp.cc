@@ -445,7 +445,7 @@ void TrackedOp::mark_event_string(const string &event, utime_t stamp)
   _event_marked();
 }
 
-void TrackedOp::mark_event(const char *event, utime_t stamp)
+void TrackedOp::mark_event(const char *event, mono_time stamp)
 {
   if (!state)
     return;

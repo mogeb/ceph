@@ -1,4 +1,4 @@
-// -*- mode:C++; tab-width:8; c-basic-offset:2; indent-tabs-mode:t -*-
+﻿// -*- mode:C++; tab-width:8; c-basic-offset:2; indent-tabs-mode:t -*-
 // vim: ts=8 sw=2 smarttab
 /*
  * Ceph - scalable distributed file system
@@ -235,6 +235,56 @@ namespace ceph {
 	struct timespec ts;
 	clock_gettime(CLOCK_MONOTONIC, &ts);
 	return time_point(seconds(ts.tv_sec) + nanoseconds(ts.tv_nsec));
+      }
+
+      static time_t to_time_t(const time_point& t) noexcept {
+        return duration_cast<seconds>(t.time_since_epoch()).count();
+      }
+      static void to_timespec(const time_point& t, struct timespec& ts) {
+        ts.tv_sec = to_time_t(t);
+        ts.tv_nsec = (t.time_since_epoch() % seconds(1)).count();
+      }
+      static struct timespec to_timespec(const time_point& t) {
+        struct timespec ts;
+        to_timespec(t, ts);
+        return ts;
+      }
+
+      static time_point from_timespec(const struct timespec& ts) {
+        struct timespec t = ts;
+//        // is the timespec using the system's clock?
+//        mono_time mono_now = mono_clock::now();
+//        if (mono_now < real_t) {
+//          real_clock::time_point real_now = real_clock::now();
+//          t = real_now - ts;
+//        }
+        return time_point(seconds(t.tv_sec) + nanoseconds(t.tv_nsec));
+      }
+
+      static time_t to_time_t(const duration& d) noexcept {
+        return duration_cast<seconds>(d).count();
+      }
+      static void to_timespec(const duration& d, struct timespec& ts) {
+        ts.tv_sec = to_time_t(d);
+        ts.tv_nsec = (d % seconds(1)).count();
+      }
+      static struct timespec to_timespec(const duration& d) {
+        struct timespec ts;
+        to_timespec(d, ts);
+        return ts;
+      }
+
+      static real_clock::time_point to_real_time(const time_point& t) {
+        time_point now = mono_clock::now();
+        duration d = std::chrono::nanoseconds(
+          now.time_since_epoch().count() -
+          t.time_since_epoch().count()
+        );
+        real_clock::time_point real_now = real_clock::now();
+        real_clock::time_point real_then = real_now;
+        real_then -= d;
+
+        return real_then;
       }
 
       // A monotonic clock's timepoints are only meaningful to the

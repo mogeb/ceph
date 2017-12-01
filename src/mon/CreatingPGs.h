@@ -15,7 +15,8 @@ struct creating_pgs_t {
 
   struct create_info {
     epoch_t created;
-    utime_t modified;
+//    utime_t modified;
+    mono_time modified;
     uint64_t start = 0;
     uint64_t end = 0;
     bool done() const {
@@ -42,7 +43,7 @@ struct creating_pgs_t {
   std::set<int64_t> created_pools;
 
   bool create_pool(int64_t poolid, uint32_t pg_num,
-		   epoch_t created, utime_t modified) {
+                  epoch_t created, mono_time modified) {
     if (created_pools.count(poolid) == 0) {
       auto& c = queue[poolid];
       c.created = created;

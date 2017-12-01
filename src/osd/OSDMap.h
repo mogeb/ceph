@@ -84,7 +84,7 @@ WRITE_CLASS_ENCODER(osd_info_t)
 ostream& operator<<(ostream& out, const osd_info_t& info);
 
 struct osd_xinfo_t {
-  utime_t down_stamp;      ///< timestamp when we were last marked down
+  mono_time down_stamp;      ///< timestamp when we were last marked down
   float laggy_probability; ///< encoded as __u32: 0 = definitely not laggy, 0xffffffff definitely laggy
   __u32 laggy_interval;    ///< average interval between being marked laggy and recovering
   uint64_t features;       ///< features supported by this osd we should know about

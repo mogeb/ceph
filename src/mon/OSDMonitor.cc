@@ -1861,7 +1861,7 @@ bool OSDMonitor::can_mark_in(int i)
   return true;
 }
 
-bool OSDMonitor::check_failures(utime_t now)
+bool OSDMonitor::check_failures(mono_time now)
 {
   bool found_failure = false;
   for (map<int,failure_info_t>::iterator p = failure_info.begin();
@@ -1874,7 +1874,7 @@ bool OSDMonitor::check_failures(utime_t now)
   return found_failure;
 }
 
-bool OSDMonitor::check_failure(utime_t now, int target_osd, failure_info_t& fi)
+bool OSDMonitor::check_failure(mono_time now, int target_osd, failure_info_t& fi)
 {
   // already pending failure?
   if (pending_inc.new_state.count(target_osd) &&
@@ -1885,11 +1885,12 @@ bool OSDMonitor::check_failure(utime_t now, int target_osd, failure_info_t& fi)
 
   set<string> reporters_by_subtree;
   auto reporter_subtree_level = g_conf->get_val<string>("mon_osd_reporter_subtree_level");
-  utime_t orig_grace(g_conf->osd_heartbeat_grace, 0);
-  utime_t max_failed_since = fi.get_failed_since();
-  utime_t failed_for = now - max_failed_since;
+  mono_clock::duration orig_grace = std::chrono::nanoseconds(g_conf->osd_heartbeat_grace *
+    1000000000);
+  mono_time max_failed_since = fi.get_failed_since();
+  mono_clock::duration failed_for = now - max_failed_since;
 
-  utime_t grace = orig_grace;
+  mono_clock::duration grace = orig_grace;
   double my_grace = 0, peer_grace = 0;
   double decay_k = 0;
   if (g_conf->mon_osd_adjust_heartbeat_grace) {
@@ -1899,11 +1900,11 @@ bool OSDMonitor::check_failure(utime_t now, int target_osd, failure_info_t& fi)
     // scale grace period based on historical probability of 'lagginess'
     // (false positive failures due to slowness).
     const osd_xinfo_t& xi = osdmap.get_xinfo(target_osd);
-    double decay = exp((double)failed_for * decay_k);
+    double decay = exp(failed_for.count() * decay_k);
     dout(20) << " halflife " << halflife << " decay_k " << decay_k
 	     << " failed_for " << failed_for << " decay " << decay << dendl;
     my_grace = decay * (double)xi.laggy_interval * xi.laggy_probability;
-    grace += my_grace;
+    grace += std::chrono::nanoseconds((uint64_t)my_grace);
   }
 
   // consider the peers reporting a failure a proxy for a potential
@@ -1926,21 +1927,22 @@ bool OSDMonitor::check_failure(utime_t now, int target_osd, failure_info_t& fi)
     }
     if (g_conf->mon_osd_adjust_heartbeat_grace) {
       const osd_xinfo_t& xi = osdmap.get_xinfo(p->first);
-      utime_t elapsed = now - xi.down_stamp;
-      double decay = exp((double)elapsed * decay_k);
+      std::chrono::duration<double> elapsed = now - xi.down_stamp;
+      double decay = exp((double)elapsed.count() * decay_k);
       peer_grace += decay * (double)xi.laggy_interval * xi.laggy_probability;
     }
   }
   
   if (g_conf->mon_osd_adjust_heartbeat_grace) {
     peer_grace /= (double)fi.reporters.size();
-    grace += peer_grace;
+    grace += std::chrono::nanoseconds((uint64_t)peer_grace);
   }
 
   dout(10) << " osd." << target_osd << " has "
 	   << fi.reporters.size() << " reporters, "
 	   << grace << " grace (" << orig_grace << " + " << my_grace
-	   << " + " << peer_grace << "), max_failed_since " << max_failed_since
+           << " + " << peer_grace << "), max_failed_since "
+           <<  mono_clock::to_real_time(max_failed_since)
 	   << dendl;
 
   if (failed_for >= grace &&
@@ -1995,8 +1997,8 @@ bool OSDMonitor::prepare_failure(MonOpRequestRef op)
 
   if (m->if_osd_failed()) {
     // calculate failure time
-    utime_t now = ceph_clock_now();
-    utime_t failed_since =
+    mono_time now = mono_clock::now();
+    mono_time failed_since =
       m->get_recv_stamp() - utime_t(m->failed_for, 0);
 
     // add a report
@@ -2308,9 +2310,9 @@ bool OSDMonitor::prepare_boot(MonOpRequestRef op)
       xi.laggy_interval *= (1.0 - g_conf->mon_osd_laggy_weight);
       dout(10) << " not laggy, new xi " << xi << dendl;
     } else {
-      if (xi.down_stamp.sec()) {
+      if (mono_clock::to_seconds(xi.down_stamp.time_since_epoch()).count()) {
         int interval = ceph_clock_now().sec() -
-	  xi.down_stamp.sec();
+          mono_clock::to_seconds(xi.down_stamp.time_since_epoch()).count();
         if (g_conf->mon_osd_laggy_max_interval &&
 	    (interval > g_conf->mon_osd_laggy_max_interval)) {
           interval =  g_conf->mon_osd_laggy_max_interval;
@@ -3111,7 +3113,7 @@ void OSDMonitor::do_application_enable(int64_t pool_id,
 unsigned OSDMonitor::scan_for_creating_pgs(
   const mempool::osdmap::map<int64_t,pg_pool_t>& pools,
   const mempool::osdmap::set<int64_t>& removed_pools,
-  utime_t modified,
+  mono_time modified,
   creating_pgs_t* creating_pgs) const
 {
   unsigned queued = 0;
@@ -3247,7 +3249,7 @@ void OSDMonitor::tick()
   if (!mon->is_leader()) return;
 
   bool do_propose = false;
-  utime_t now = ceph_clock_now();
+  mono_time now = mono_clock::now();
 
   if (handle_osd_timeouts(now, last_osd_report)) {
     do_propose = true;
@@ -3345,7 +3347,7 @@ void OSDMonitor::tick()
   }
 
   // expire blacklisted items?
-  for (ceph::unordered_map<entity_addr_t,utime_t>::iterator p = osdmap.blacklist.begin();
+  for (ceph::unordered_map<entity_addr_t, mono_time>::iterator p = osdmap.blacklist.begin();
        p != osdmap.blacklist.end();
        ++p) {
     if (p->second < now) {

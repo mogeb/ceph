@@ -87,8 +87,8 @@ private:
 
   MonOpRequest(Message *req, OpTracker *tracker) :
     TrackedOp(tracker,
-      req->get_recv_stamp().is_zero() ?
-      ceph_clock_now() : req->get_recv_stamp()),
+      req->get_recv_stamp().time_since_epoch().count() == 0 ?
+      mono_clock::now() : req->get_recv_stamp()),
     request(req),
     session(NULL),
     con(NULL),

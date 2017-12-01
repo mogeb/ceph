@@ -630,7 +630,7 @@ public:
    * If none of our Dispatchers can handle it, ceph_abort().
    */
   void ms_fast_dispatch(Message *m) {
-    m->set_dispatch_stamp(ceph_clock_now());
+    m->set_dispatch_stamp(mono_clock::now());
     for (list<Dispatcher*>::iterator p = fast_dispatchers.begin();
 	 p != fast_dispatchers.end();
 	 ++p) {
@@ -660,7 +660,7 @@ public:
    *  one reference to it.
    */
   void ms_deliver_dispatch(Message *m) {
-    m->set_dispatch_stamp(ceph_clock_now());
+    m->set_dispatch_stamp(mono_clock::now());
     for (list<Dispatcher*>::iterator p = dispatchers.begin();
 	 p != dispatchers.end();
 	 ++p) {

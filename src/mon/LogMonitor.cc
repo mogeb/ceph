@@ -64,13 +64,13 @@ void LogMonitor::create_initial()
   LogEntry e;
   memset(&e.who, 0, sizeof(e.who));
   e.name = g_conf->name;
-  e.stamp = ceph_clock_now();
+  e.stamp = mono_clock::now();
   e.prio = CLOG_INFO;
   std::stringstream ss;
   ss << "mkfs " << mon->monmap->get_fsid();
   e.msg = ss.str();
   e.seq = 0;
-  pending_log.insert(pair<utime_t,LogEntry>(e.stamp, e));
+  pending_log.insert(pair<mono_time,LogEntry>(e.stamp, e));
 }
 
 void LogMonitor::update_from_paxos(bool *need_bootstrap)
@@ -214,7 +214,7 @@ void LogMonitor::encode_pending(MonitorDBStore::TransactionRef t)
   dout(10) << __func__ << " v" << version << dendl;
   __u8 v = 1;
   ::encode(v, bl);
-  multimap<utime_t,LogEntry>::iterator p;
+  multimap<mono_time,LogEntry>::iterator p;
   for (p = pending_log.begin(); p != pending_log.end(); ++p)
     p->second.encode(bl, mon->get_quorum_con_features());
 
@@ -343,7 +343,7 @@ bool LogMonitor::prepare_log(MonOpRequestRef op)
     dout(10) << " logging " << *p << dendl;
     if (!pending_summary.contains(p->key())) {
       pending_summary.add(*p);
-      pending_log.insert(pair<utime_t,LogEntry>(p->stamp, *p));
+      pending_log.insert(pair<mono_time,LogEntry>(p->stamp, *p));
     }
   }
   pending_summary.prune(g_conf->mon_log_max_summary);
@@ -505,7 +505,7 @@ bool LogMonitor::prepare_command(MonOpRequestRef op)
     le.msg = str_join(logtext, " ");
     pending_summary.add(le);
     pending_summary.prune(g_conf->mon_log_max_summary);
-    pending_log.insert(pair<utime_t,LogEntry>(le.stamp, le));
+    pending_log.insert(pair<mono_time,LogEntry>(le.stamp, le));
     wait_for_finished_proposal(op, new Monitor::C_Command(
           mon, op, 0, string(), get_last_committed() + 1));
     return true;
@@ -633,7 +633,7 @@ void LogMonitor::_create_sub_incremental(MLog *mlog, int level, version_t sv)
     dout(10) << __func__ << " skipped from " << sv
 	     << " to first_committed " << get_first_committed() << dendl;
     LogEntry le;
-    le.stamp = ceph_clock_now();
+    le.stamp = mono_clock::now();
     le.prio = CLOG_WARN;
     ostringstream ss;
     ss << "skipped log messages from " << sv << " to " << get_first_committed();
