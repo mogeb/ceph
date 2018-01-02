@@ -30,6 +30,7 @@
 #include "common/Finisher.h"
 #include "common/Timer.h"
 #include "mon/MgrMap.h"
+#include "messages/MMonSubscribe.h"
 
 #include "DaemonServer.h"
 #include "PyModuleRegistry.h"
@@ -50,6 +51,10 @@ protected:
   Objecter  *objecter;
   Client    *client;
   Messenger *client_messenger;
+//  map<string, xlist<MgrSubscription*> *> subs;
+  map<string, MgrSubscription*> known_subs;
+  vector<MgrSessionRef> sessions;
+  ConnectionRef special_con = nullptr;
 
   mutable Mutex lock;
   SafeTimer timer;
@@ -91,12 +96,15 @@ public:
   void handle_osd_map();
   void handle_log(MLog *m);
   void handle_service_map(MServiceMap *m);
+  void handle_subscribe(MMonSubscribe *m);
 
   bool got_mgr_map(const MgrMap& m);
 
   bool ms_dispatch(Message *m);
 
   void tick();
+
+  void check_subs();
 
   void background_init(Context *completion);
   void shutdown();

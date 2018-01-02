@@ -8,7 +8,23 @@
 #include "common/entity_name.h"
 #include "msg/msg_types.h"
 #include "mon/MonCap.h"
+#include "include/xlist.h"
+#include "msg/Connection.h"
 
+struct MgrSubscription {
+  string type;
+  version_t next;
+  ConnectionRef con;
+//  xlist<MgrSubscription*>::item type_item;
+
+public:
+  MgrSubscription(Message *m, const string& t) : type(t)
+  {
+    if (m) {
+      con = m->get_connection();
+    }
+  }
+};
 
 /**
  * Session state associated with the Connection.
@@ -22,6 +38,8 @@ struct MgrSession : public RefCountedObject {
 
   // mon caps are suitably generic for mgr
   MonCap caps;
+//  map<string, xlist<MgrSubscription*> *> subs;
+  map<string, vector<MgrSubscription*> *> subs;
 
   std::set<std::string> declared_types;
 

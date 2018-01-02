@@ -191,6 +191,7 @@ cdef extern from "rados/librados.h" nogil:
                          char **outs, size_t *outslen)
     int rados_monitor_log(rados_t cluster, const char *level, rados_log_callback_t cb, void *arg)
     int rados_monitor_log2(rados_t cluster, const char *level, rados_log_callback2_t cb, void *arg)
+    int rados_iostat(rados_t cluster, rados_callback_t cb, void *arg)
 
     int rados_wait_for_latest_osdmap(rados_t cluster)
 
@@ -1334,6 +1335,7 @@ Rados object in state %s." % self.state)
         # NOTE(sileht): timeout is ignored because C API doesn't provide
         # timeout argument, but we keep it for backward compat with old python binding
         self.require_state("connected")
+        print('IN MGR_COMMAND')
 
         cmd = cstr_list(cmd, 'cmd')
         inbuf = cstr(inbuf, 'inbuf')
@@ -1495,6 +1497,26 @@ Rados object in state %s." % self.state)
         # NOTE(sileht): Prevents the callback method from being garbage collected
         self.monitor_callback = None
         self.monitor_callback2 = cb
+
+    def ceph_iostat(self, callback, arg):
+        print('IN CEPH_IOSTAT')
+        print('')
+        print('callback:')
+        print(callback)
+        callback('Hiao')
+        print('arg:')
+        print(arg)
+        print('')
+        if callback is None:
+            print('no callback defined')
+            return
+
+        cb = (callback, arg)
+        cdef PyObject* _arg = <PyObject*>cb
+
+        r = rados_iostat(self.cluster, <rados_callback_t>&__monitor_callback2,
+            _arg)
+        return r
 
     @requires(('service', str_type), ('daemon', str_type), ('metadata', dict))
     def service_daemon_register(self, service, daemon, metadata):
@@ -2080,6 +2102,17 @@ cdef int __aio_complete_cb(rados_completion_t completion, void *args) with gil:
     """
     cdef object cb = <object>args
     cb._complete()
+    return 0
+
+
+cdef int __ceph_iostat_cb(rados_completion_t completion, void *args) with gil:
+    """
+    Callback
+    """
+    print("calling callback")
+    cdef object cb = <object>args
+    cb[0](cb[1])
+
     return 0
 
 

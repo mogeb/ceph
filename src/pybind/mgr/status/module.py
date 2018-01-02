@@ -305,6 +305,8 @@ class Module(MgrModule):
 
     def handle_command(self, cmd):
         self.log.error("handle_command")
+        self.log.error('mogeb: ')
+        self.log.error(cmd)
 
         if cmd['prefix'] == "fs status":
             return self.handle_fs_status(cmd)

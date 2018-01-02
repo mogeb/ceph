@@ -101,6 +101,8 @@ public:
   bool handle_mgr_configure(MMgrConfigure *m);
   bool handle_command_reply(MCommandReply *m);
 
+  bool sub_want(const string what, version_t start, unsigned flags);
+
   void send_pgstats();
   void set_pgstats_cb(std::function<MPGStats*()> cb_)
   {

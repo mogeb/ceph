@@ -934,6 +934,22 @@ def main():
             print('target {0} doesn\'t exists, please pass correct target to tell command, such as mon.a/'
                   'osd.1/mds.a/mgr'.format(childargs[1]), file=sys.stderr)
             return 1
+
+    # implement 'ceph iostat'
+    if len(childargs) > 0 and childargs[0] == 'iostat':
+        def iostat_cb(arg):
+            print('SUCCESS: in callback ' + arg)
+
+        run_in_thread(cluster_handle.ceph_iostat, iostat_cb, 'iostat_arg_mogeb')
+        print('back from the black hole')
+
+        # loop forever letting watch_cb print lines
+        try:
+            signal.pause()
+        except KeyboardInterrupt:
+            # or until ^C, at least
+            return 0
+
     # implement -w/--watch_*
     # This is ugly, but Namespace() isn't quite rich enough.
     level = ''

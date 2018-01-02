@@ -272,10 +272,80 @@ bool DaemonServer::ms_dispatch(Message *m)
       return handle_open(static_cast<MMgrOpen*>(m));
     case MSG_COMMAND:
       return handle_command(static_cast<MCommand*>(m));
+
+    case MSG_MGR_SUBSCRIBE:
+      dout(1) << "mogeb: DAEMON - MSG_MGR_SUBSCRIBE - handle_subscribe" << dendl;
+      handle_subscribe(static_cast<MMonSubscribe*>(m));
+      return true;
+    case CEPH_MSG_MON_SUBSCRIBE:
+      dout(1) << "mogeb: DAEMON - CEPH_MSG_MON_SUBSCRIBE - handle_subscribe" << dendl;
+      handle_subscribe(static_cast<MMonSubscribe*>(m));
+      return true;
     default:
       dout(1) << "Unhandled message type " << m->get_type() << dendl;
       return false;
   };
+}
+
+void DaemonServer::handle_subscribe(MMonSubscribe *m)
+{
+  dout(1) << "mogeb: DAEMONSERVER handle_subscribe()" << dendl;
+
+  for (map<string, ceph_mon_subscribe_item>::iterator it = m->what.begin();
+       it != m->what.end();
+       it++) {
+    dout(1) << "mogeb: subscribing " << it->first << dendl;
+    MgrSubscription *sub = new MgrSubscription(m, it->first);
+
+    sub->con = m->get_connection();
+    MgrSessionRef ses = static_cast<MgrSession*>(sub->con->get_priv());
+    sessions.push_back(ses);
+
+    if (!ses->subs.count(it->first)) {
+      ses->subs[it->first] = new vector<MgrSubscription*>;
+//      ses->subs[it->first] = new xlist<MgrSubscription*>;
+    }
+    ses->subs[it->first]->push_back(sub);
+    dout(1) << "mogeb: should start publishing as of now" << dendl;
+    special_con = sub->con;
+
+//    if (known_subs.count(it->first)) {
+//      sub = known_subs[it->first];
+
+//      if (!subs.count(it->first)) {
+//        subs[it->first] = new xlist<MgrSubscription*>;
+//      }
+////      subs[it->first]->push_back(sub);
+//    }
+  }
+}
+
+void DaemonServer::check_subs()
+{
+  if (special_con) {
+    std::cout << "mogeb: publishing!" << std::endl;
+    dout(1) << "mogeb: publishing!" << dendl;
+    special_con->send_message(new MMonSubscribe());
+  } else {
+    std::cout << "mogeb: NOT publishing!" << std::endl;
+    dout(1) << "mogeb: NOT publishing!" << dendl;
+  }
+
+  for (unsigned i = 0; i < sessions.size(); i++) {
+    dout(1) << "mogeb: 1" << dendl;
+    for (map<string, vector<MgrSubscription*> *>::iterator it = sessions[i]->subs.begin();
+         it != sessions[i]->subs.end();
+         it++) {
+      dout(1) << "mogeb: 2" << dendl;
+      for (unsigned j = 0; j < it->second->size(); j++) {
+        dout(1) << "mogeb: 3" << dendl;
+        vector<MgrSubscription*> *v = it->second;
+        MgrSubscription *s = (*v)[j];
+        s->con->send_message(new MMonSubscribe());
+        dout(1) << "mgebai: checking sub" << dendl;
+      }
+    }
+  }
 }
 
 void DaemonServer::maybe_ready(int32_t osd_id)

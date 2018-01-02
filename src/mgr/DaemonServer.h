@@ -22,6 +22,8 @@
 #include "common/Mutex.h"
 #include "common/LogClient.h"
 
+#include "messages/MMonSubscribe.h"
+
 #include <msg/Messenger.h>
 #include <mon/MonClient.h>
 
@@ -74,6 +76,8 @@ protected:
   ServiceMap pending_service_map;  // uncommitted
 
   epoch_t pending_service_map_dirty = 0;
+  vector<MgrSessionRef> sessions;
+  ConnectionRef special_con = nullptr;
 
   Mutex lock;
 
@@ -131,6 +135,8 @@ public:
   bool handle_open(MMgrOpen *m);
   bool handle_report(MMgrReport *m);
   bool handle_command(MCommand *m);
+  void handle_subscribe(MMonSubscribe *m);
+  void check_subs();
   void send_report();
   void got_service_map();
 

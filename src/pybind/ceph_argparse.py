@@ -1223,7 +1223,7 @@ def send_command(cluster, target=('mon', ''), cmd=None, inbuf=b'', timeout=0,
                  verbose=False):
     """
     Send a command to a daemon using librados's
-    mon_command, osd_command, or pg_command.  Any bulk input data
+    mon_command, osd_command, mgr_command or pg_command.  Any bulk input data
     comes in inbuf.
 
     Returns (ret, outbuf, outs); ret is the return code, outbuf is
@@ -1244,6 +1244,9 @@ def send_command(cluster, target=('mon', ''), cmd=None, inbuf=b'', timeout=0,
                 cluster.osd_command, osdid, cmd, inbuf, timeout)
 
         elif target[0] == 'mgr':
+            print('MGR COMMAND')
+            print(cmd)
+            print('about to run in thread')
             ret, outbuf, outs = run_in_thread(
                 cluster.mgr_command, cmd, inbuf, timeout)
 
@@ -1268,9 +1271,13 @@ def send_command(cluster, target=('mon', ''), cmd=None, inbuf=b'', timeout=0,
                 print('{0} to {1}'.format(cmd, target[0]),
                       file=sys.stderr)
             if len(target) < 2 or target[1] == '':
+                print('MON COMMAND')
+                print(cmd)
                 ret, outbuf, outs = run_in_thread(
                     cluster.mon_command, cmd, inbuf, timeout)
             else:
+                print('MON COMMAND')
+                print(cmd)
                 ret, outbuf, outs = run_in_thread(
                     cluster.mon_command, cmd, inbuf, timeout, target[1])
         elif target[0] == 'mds':
@@ -1319,6 +1326,9 @@ def json_command(cluster, target=('mon', ''), prefix=None, argdict=None,
         if 'target' in argdict:
             target = argdict.get('target')
 
+    print('target:')
+    print(target)
+    print()
     # grab prefix for error messages
     prefix = cmddict['prefix']
 
@@ -1336,9 +1346,14 @@ def json_command(cluster, target=('mon', ''), prefix=None, argdict=None,
                 # use the target we were originally given
                 pass
 
+        print('send_command_retry')
+        print()
         ret, outbuf, outs = send_command_retry(cluster,
                                                target, [json.dumps(cmddict)],
                                                inbuf, timeout, verbose)
+        # print('outbuf:')
+        # print(outbuf)
+        print()
 
     except Exception as e:
         if not isinstance(e, ArgumentError):

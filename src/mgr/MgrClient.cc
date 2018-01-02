@@ -24,6 +24,7 @@
 #include "messages/MCommand.h"
 #include "messages/MCommandReply.h"
 #include "messages/MPGStats.h"
+#include "messages/MMonSubscribe.h"
 
 #define dout_subsys ceph_subsys_mgrc
 #undef dout_prefix
@@ -424,6 +425,25 @@ bool MgrClient::handle_command_reply(MCommandReply *m)
   command_table.erase(tid);
 
   m->put();
+  return true;
+}
+
+bool MgrClient::sub_want(const string what, version_t start, unsigned flags)
+{
+  std::cout << "mogeb: sub_want()" << std::endl;
+  MMonSubscribe *m = new MMonSubscribe();
+  std::map<string, ceph_mon_subscribe_item> sub_new;
+  ceph_mon_subscribe_item item;
+  sub_new["hello"] = item;
+  m->what = sub_new;
+  if (session && session->con) {
+    std::cout << "mogeb: connection open, sending" << std::endl;
+    session->con->send_message(m);
+  } else {
+    std::cout << "mogeb: no connection, not sending" << std::endl;
+  }
+  std::cout << "mogeb: subscription message sent" << std::endl;
+
   return true;
 }
 

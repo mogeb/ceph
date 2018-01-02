@@ -3585,6 +3585,17 @@ extern "C" int rados_monitor_log2(rados_t cluster, const char *level,
   return retval;
 }
 
+extern "C" int rados_iostat(rados_t cluster, rados_callback_t cb, void *arg)
+{
+  std::cout << "librados::radios_iostat" << std::endl;
+  librados::RadosClient *client = (librados::RadosClient *)cluster;
+  std::cout << "about to call client->ceph_iostat()" << std::endl;
+  int ret = client->ceph_iostat(cb, arg);
+
+  std::cout << "librados::rados_stat should now return" << std::endl;
+  return ret;
+}
+
 extern "C" int rados_ioctx_create(rados_t cluster, const char *name, rados_ioctx_t *io)
 {
   tracepoint(librados, rados_ioctx_create_enter, cluster, name);

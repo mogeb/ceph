@@ -3788,7 +3788,8 @@ CEPH_RADOS_API int rados_monitor_log(rados_t cluster, const char *level,
                                      rados_log_callback_t cb, void *arg);
 CEPH_RADOS_API int rados_monitor_log2(rados_t cluster, const char *level,
 				      rados_log_callback2_t cb, void *arg);
-
+CEPH_RADOS_API int rados_iostat(rados_t cluster, rados_callback_t cb,
+                                void *arg);
 
 /**
  * register daemon instance for a service

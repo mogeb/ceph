@@ -518,7 +518,13 @@ bool librados::RadosClient::_dispatch(Message *m)
     handle_log(static_cast<MLog *>(m));
     break;
 
+  case CEPH_MSG_MON_SUBSCRIBE:
+  case MSG_MGR_SUBSCRIBE:
+    std::cout << "SUCCESS" << std::endl;
+    break;
+
   default:
+    std::cout << "Unknown" << std::endl;
     return false;
   }
 
@@ -925,6 +931,18 @@ int librados::RadosClient::pg_command(pg_t pgid, vector<string>& cmd,
     cond.Wait(mylock);
   mylock.Unlock();
   return ret;
+}
+
+int librados::RadosClient::ceph_iostat(rados_callback_t cb, void *arg)
+{
+  std::cout << "librados::RadosClient::ceph_iostat()" << std::endl;
+  std::cout << "i should now call mgrclient->sub_want()" << std::endl;
+
+//  monclient.sub_want("iostat", 0, 0);
+//  monclient.renew_subs();
+
+  mgrclient.sub_want("mogeb_nothing", 1, 0);
+  return 0;
 }
 
 int librados::RadosClient::monitor_log(const string& level,

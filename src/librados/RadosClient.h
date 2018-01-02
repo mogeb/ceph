@@ -76,6 +76,7 @@ private:
   version_t log_last_version;
   rados_log_callback_t log_cb;
   rados_log_callback2_t log_cb2;
+  rados_log_callback2_t iostat_cb;
   void *log_cb_arg;
   string log_watch;
 
@@ -154,6 +155,7 @@ public:
   void handle_log(MLog *m);
   int monitor_log(const string& level, rados_log_callback_t cb,
 		  rados_log_callback2_t cb2, void *arg);
+  int ceph_iostat(rados_callback_t cb, void *arg);
 
   void get();
   bool put();

@@ -464,6 +464,7 @@ void Mgr::handle_service_map(MServiceMap *m)
 bool Mgr::ms_dispatch(Message *m)
 {
   dout(4) << *m << dendl;
+  dout(1) << "mogeb: mgr ms_dispatch" << dendl;
   Mutex::Locker l(lock);
 
   switch (m->get_type()) {
@@ -497,13 +498,54 @@ bool Mgr::ms_dispatch(Message *m)
     case MSG_LOG:
       handle_log(static_cast<MLog *>(m));
       break;
+    case MSG_MGR_SUBSCRIBE:
+      dout(1) << "mogeb: MSG_MGR_SUBSCRIBE - handle_subscribe" << dendl;
+      handle_subscribe(static_cast<MMonSubscribe*>(m));
+      break;
+    case CEPH_MSG_MON_SUBSCRIBE:
+      dout(1) << "mogeb: CEPH_MSG_MON_SUBSCRIBE - handle_subscribe" << dendl;
+      handle_subscribe(static_cast<MMonSubscribe*>(m));
+      break;
 
     default:
+      dout(1) << "mogeb: mgr received unknown message" << dendl;
       return false;
   }
   return true;
 }
 
+void Mgr::handle_subscribe(MMonSubscribe *m)
+{
+  dout(1) << "mogeb: MGR handle_subscribe()" << dendl;
+
+  for (map<string, ceph_mon_subscribe_item>::iterator it = m->what.begin();
+       it != m->what.end();
+       it++) {
+    dout(1) << "mogeb: subscribing " << it->first << dendl;
+    MgrSubscription *sub = nullptr;
+
+    sub->con = m->get_connection();
+    MgrSessionRef ses = static_cast<MgrSession*>(sub->con->get_priv());
+    sessions.push_back(ses);
+
+    if (!ses->subs.count(it->first)) {
+      ses->subs[it->first] = new vector<MgrSubscription*>;
+//      ses->subs[it->first] = new xlist<MgrSubscription*>;
+    }
+    ses->subs[it->first]->push_back(sub);
+    dout(1) << "mogeb: should start publishing as of now" << dendl;
+    special_con = sub->con;
+
+//    if (known_subs.count(it->first)) {
+//      sub = known_subs[it->first];
+
+//      if (!subs.count(it->first)) {
+//        subs[it->first] = new xlist<MgrSubscription*>;
+//      }
+////      subs[it->first]->push_back(sub);
+//    }
+  }
+}
 
 void Mgr::handle_fs_map(MFSMap* m)
 {
@@ -622,6 +664,31 @@ void Mgr::tick()
 {
   dout(10) << dendl;
   server.send_report();
+  server.check_subs();
+//  check_subs();
+}
+
+void Mgr::check_subs()
+{
+  if (special_con) {
+    std::cout << "mogeb: publishing!" << std::endl;
+    dout(1) << "mogeb: publishing!" << dendl;
+    special_con->send_message(new MMonSubscribe());
+  } else {
+    std::cout << "mogeb: NOT publishing!" << std::endl;
+    dout(1) << "mogeb: NOT publishing!" << dendl;
+  }
+
+  for (unsigned i = 0; i < sessions.size(); i++) {
+    for (map<string, vector<MgrSubscription*> *>::iterator it = sessions[i]->subs.begin();
+         it != sessions[i]->subs.end();
+         it++) {
+      for (unsigned j = 0; j < it->second->size(); j++) {
+//        *(it->second)[j].con->send_message();
+        dout(1) << "mgebai: checking sub" << dendl;
+      }
+    }
+  }
 }
 
 std::vector<MonCommand> Mgr::get_command_set() const
