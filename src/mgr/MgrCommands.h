@@ -4,6 +4,7 @@
 /* no guard; may be included multiple times */
 
 // see MonCommands.h
+COMMAND("mogeb", "my custom command", "mgr", "r", "cli,rest")
 
 COMMAND("pg stat", "show placement group status.",
 	"pg", "r", "cli,rest")

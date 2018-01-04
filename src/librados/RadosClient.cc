@@ -79,6 +79,7 @@ librados::RadosClient::RadosClient(CephContext *cct_)
     timer(cct, lock),
     refcnt(1),
     log_last_version(0), log_cb(NULL), log_cb2(NULL), log_cb_arg(NULL),
+    iostat_cb(NULL),
     finisher(cct, "radosclient", "fn-radosclient")
 {
 }
@@ -518,13 +519,13 @@ bool librados::RadosClient::_dispatch(Message *m)
     handle_log(static_cast<MLog *>(m));
     break;
 
-  case CEPH_MSG_MON_SUBSCRIBE:
-  case MSG_MGR_SUBSCRIBE:
-    std::cout << "SUCCESS" << std::endl;
+  case MSG_IOSTAT:
+    std::cout << "mogeb: SUCCESS - RadosClient::_dispatch received" << std::endl;
+    ldout(cct, 1) << "mogeb: SUCCESS - RadosClient::_dispatch received" << dendl;
+    handle_iostat(static_cast<MIostat *>(m));
     break;
 
   default:
-    std::cout << "Unknown" << std::endl;
     return false;
   }
 
@@ -933,7 +934,7 @@ int librados::RadosClient::pg_command(pg_t pgid, vector<string>& cmd,
   return ret;
 }
 
-int librados::RadosClient::ceph_iostat(rados_callback_t cb, void *arg)
+int librados::RadosClient::ceph_iostat(rados_iostat_callback_t cb, void *arg)
 {
   std::cout << "librados::RadosClient::ceph_iostat()" << std::endl;
   std::cout << "i should now call mgrclient->sub_want()" << std::endl;
@@ -942,6 +943,10 @@ int librados::RadosClient::ceph_iostat(rados_callback_t cb, void *arg)
 //  monclient.renew_subs();
 
   mgrclient.sub_want("mogeb_nothing", 1, 0);
+  iostat_cb = cb;
+  std::cout << "setting iostat_cb = " << cb << std::endl << std::endl;
+  iostat_arg = arg;
+  std::cout << "setting iostat_arg = " << arg << std::endl << std::endl;
   return 0;
 }
 
@@ -1038,6 +1043,22 @@ void librados::RadosClient::handle_log(MLog *m)
   }
 
   m->put();
+}
+
+void librados::RadosClient::handle_iostat(MIostat *m)
+{
+  std::cout << "handle_iostat" << std::endl;
+  if (iostat_cb) {
+    std::cout << "RadosClient: calling callback" << std::endl;
+    std::cout << "iostat_arg = " << iostat_arg << std::endl;
+    std::cout << "iostat_cb = " << iostat_cb << std::endl;
+//    string str = "OOH YEAH";
+//    iostat_cb(iostat_arg);
+    string line = "mogeb_line";
+    iostat_cb(log_cb_arg);
+  } else {
+    std::cout << "no iostat callback known" << std::endl;
+  }
 }
 
 int librados::RadosClient::service_daemon_register(

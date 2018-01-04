@@ -208,6 +208,7 @@
 
 // *** cephmgr <-> mgr-client
 #define MSG_MGR_SUBSCRIBE         0x708
+#define MSG_IOSTAT                0x709
 
 // ======================================================
 

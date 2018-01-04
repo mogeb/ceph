@@ -23,6 +23,7 @@
 #include "common/LogClient.h"
 
 #include "messages/MMonSubscribe.h"
+#include "messages/MIostat.h"
 
 #include <msg/Messenger.h>
 #include <mon/MonClient.h>

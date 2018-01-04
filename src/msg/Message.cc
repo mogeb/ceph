@@ -170,6 +170,7 @@
 #include "messages/MMgrConfigure.h"
 #include "messages/MMonMgrReport.h"
 #include "messages/MServiceMap.h"
+#include "messages/MIostat.h"
 
 #include "messages/MLock.h"
 
@@ -785,6 +786,10 @@ Message *decode_message(CephContext *cct, int crcflags,
 
   case MSG_MON_HEALTH_CHECKS:
     m = new MMonHealthChecks();
+    break;
+
+  case MSG_IOSTAT:
+    m = new MIostat();
     break;
 
 #if defined(HAVE_XIO)

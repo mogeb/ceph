@@ -322,14 +322,14 @@ void DaemonServer::handle_subscribe(MMonSubscribe *m)
 
 void DaemonServer::check_subs()
 {
-  if (special_con) {
-    std::cout << "mogeb: publishing!" << std::endl;
-    dout(1) << "mogeb: publishing!" << dendl;
-    special_con->send_message(new MMonSubscribe());
-  } else {
-    std::cout << "mogeb: NOT publishing!" << std::endl;
-    dout(1) << "mogeb: NOT publishing!" << dendl;
-  }
+//  if (special_con) {
+//    std::cout << "mogeb: publishing!" << std::endl;
+//    dout(1) << "mogeb: publishing!" << dendl;
+//    special_con->send_message(new MIostat());
+//  } else {
+//    std::cout << "mogeb: NOT publishing!" << std::endl;
+//    dout(1) << "mogeb: NOT publishing!" << dendl;
+//  }
 
   for (unsigned i = 0; i < sessions.size(); i++) {
     dout(1) << "mogeb: 1" << dendl;
@@ -341,7 +341,7 @@ void DaemonServer::check_subs()
         dout(1) << "mogeb: 3" << dendl;
         vector<MgrSubscription*> *v = it->second;
         MgrSubscription *s = (*v)[j];
-        s->con->send_message(new MMonSubscribe());
+        s->con->send_message(new MIostat());
         dout(1) << "mgebai: checking sub" << dendl;
       }
     }

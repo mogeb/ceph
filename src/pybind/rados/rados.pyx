@@ -100,7 +100,8 @@ cdef extern from "rados/librados.h" nogil:
                                           uint64_t sec, uint64_t nsec, uint64_t seq, const char *level, const char *msg)
     ctypedef void (*rados_log_callback2_t)(void *arg, const char *line, const char *channel, const char *who, const char *name,
                                           uint64_t sec, uint64_t nsec, uint64_t seq, const char *level, const char *msg)
-
+    # ctypedef void (*rados_iostat_callback_t)(uint64_t arg)
+    ctypedef void (*rados_iostat_callback_t)(void *arg)
 
     cdef struct rados_cluster_stat_t:
         uint64_t kb
@@ -191,7 +192,8 @@ cdef extern from "rados/librados.h" nogil:
                          char **outs, size_t *outslen)
     int rados_monitor_log(rados_t cluster, const char *level, rados_log_callback_t cb, void *arg)
     int rados_monitor_log2(rados_t cluster, const char *level, rados_log_callback2_t cb, void *arg)
-    int rados_iostat(rados_t cluster, rados_callback_t cb, void *arg)
+    # int rados_iostat(rados_t cluster, rados_iostat_callback_t cb, uint64_t arg)
+    int rados_iostat(rados_t cluster, rados_iostat_callback_t cb, void *arg)
 
     int rados_wait_for_latest_osdmap(rados_t cluster)
 
@@ -593,6 +595,22 @@ cdef int __monitor_callback2(void *arg, const char *line, const char *channel,
     cb_info[0](cb_info[1], line, channel, name, who, sec, nsec, seq, level, msg)
     return 0
 
+cdef int __iostat_callback(void *arg) with gil:
+    print('ayre bel se3a')
+    print('')
+    print('mogeb_cb:')
+    print(mogeb_cb)
+    mogeb_cb(mogeb_arg)
+    # cdef object cb_info = <object>arg
+    print('EKHTAKKKKKKKKKKKKKKKKKKKKKKKKKKKKK')
+    # cb_info[0](cb_info[1], line, channel, name, who, sec, nsec, seq, level, msg)
+    # cb_info[0](cb_info[1])
+    print('chlekke')
+    print('')
+    return 0
+
+mogeb_cb = None
+mogeb_arg = None
 
 class Version(object):
     """ Version information """
@@ -1498,25 +1516,57 @@ Rados object in state %s." % self.state)
         self.monitor_callback = None
         self.monitor_callback2 = cb
 
+    # def ceph_iostat(self, callback, arg):
+    #     print('IN CEPH_IOSTAT')
+    #     print('')
+    #     print('callback:')
+    #     print(callback)
+    #     callback('Hiao')
+    #     print('rados.pyx: arg:')
+    #     print(arg)
+    #     print('')
+    #     if callback is None:
+    #         print('no callback defined')
+    #         return
+
+    #     cb = (callback, arg)
+    #     print('cb: ')
+    #     print(cb)
+    #     print(cb[0])
+    #     print(cb[1])
+    #     cdef PyObject* _arg = <PyObject*>cb
+    #     print('arg:')
+    #     cdef object cb_info = <object>_arg
+    #     print(cb_info)
+    #     # cdef uint64_t _arg = <uint64_t>cb
+    #     # _arg = arg
+
+    #     print('rados.pyx: calling rados_iostat:')
+    #     with nogil:
+    #         r = rados_iostat(self.cluster, <const char*>"okmogeb",
+    #             <rados_iostat_callback_t>&__iostat_callback,
+    #             # <rados_iostat_callback_t>&__ceph_iostat_cb,
+    #             _arg)
+    #     return r
     def ceph_iostat(self, callback, arg):
-        print('IN CEPH_IOSTAT')
-        print('')
-        print('callback:')
-        print(callback)
-        callback('Hiao')
-        print('arg:')
-        print(arg)
-        print('')
-        if callback is None:
-            print('no callback defined')
-            return
+        global mogeb_cb
+
+        if callback is not None and not callable(callback):
+            raise LogicError("callback must be a callable function or None")
 
         cb = (callback, arg)
         cdef PyObject* _arg = <PyObject*>cb
+        print('')
+        print('')
+        mogeb_cb = callback
+        mogeb_arg = arg
+        with nogil:
+            r = rados_iostat(self.cluster,
+                <rados_iostat_callback_t>&__iostat_callback, _arg)
 
-        r = rados_iostat(self.cluster, <rados_callback_t>&__monitor_callback2,
-            _arg)
-        return r
+        if r:
+            raise make_ex(r, 'error calling rados_monitor_log')
+
 
     @requires(('service', str_type), ('daemon', str_type), ('metadata', dict))
     def service_daemon_register(self, service, daemon, metadata):
