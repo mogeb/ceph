@@ -23,6 +23,8 @@
 class MIostat : public PaxosServiceMessage {
 public:
   uuid_d fsid;
+  bufferlist service_map_bl;  // encoded ServiceMap
+  int64_t iostuff;  // encoded ServiceMap
 
   MIostat() : PaxosServiceMessage(MSG_IOSTAT, 0) {}
   MIostat(const uuid_d& f) : PaxosServiceMessage(MSG_IOSTAT, 0), fsid(f) { }

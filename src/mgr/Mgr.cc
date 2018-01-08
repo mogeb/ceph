@@ -522,7 +522,7 @@ void Mgr::handle_subscribe(MMonSubscribe *m)
        it != m->what.end();
        it++) {
     dout(1) << "mogeb: subscribing " << it->first << dendl;
-    MgrSubscription *sub = nullptr;
+    MgrSubscription *sub = new MgrSubscription(m, it->first);
 
     sub->con = m->get_connection();
     MgrSessionRef ses = static_cast<MgrSession*>(sub->con->get_priv());
@@ -663,8 +663,8 @@ void Mgr::handle_mgr_digest(MMgrDigest* m)
 void Mgr::tick()
 {
   dout(10) << dendl;
-  server.send_report();
   server.check_subs();
+  server.send_report();
 //  check_subs();
 }
 
@@ -673,18 +673,23 @@ void Mgr::check_subs()
   if (special_con) {
     std::cout << "mogeb: publishing!" << std::endl;
     dout(1) << "mogeb: publishing!" << dendl;
-    special_con->send_message(new MMonSubscribe());
+    special_con->send_message(new MIostat());
   } else {
     std::cout << "mogeb: NOT publishing!" << std::endl;
     dout(1) << "mogeb: NOT publishing!" << dendl;
   }
 
   for (unsigned i = 0; i < sessions.size(); i++) {
+    dout(1) << "mogeb: 1" << dendl;
     for (map<string, vector<MgrSubscription*> *>::iterator it = sessions[i]->subs.begin();
          it != sessions[i]->subs.end();
          it++) {
+      dout(1) << "mogeb: 2" << dendl;
       for (unsigned j = 0; j < it->second->size(); j++) {
-//        *(it->second)[j].con->send_message();
+        dout(1) << "mogeb: 3" << dendl;
+        vector<MgrSubscription*> *v = it->second;
+        MgrSubscription *s = (*v)[j];
+        s->con->send_message(new MIostat());
         dout(1) << "mgebai: checking sub" << dendl;
       }
     }

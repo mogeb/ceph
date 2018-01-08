@@ -44,7 +44,6 @@ protected:
   MgrMap mgr_map;
 
   set<int64_t> existing_pools; ///< pools that exist, as of PGMap epoch
-  PGMap pg_map;
   PGMap::Incremental pending_inc;
 
   bufferlist health_json;
@@ -52,6 +51,7 @@ protected:
 
 public:
 
+  PGMap pg_map;
   void load_digest(MMgrDigest *m);
   void ingest_pgstats(MPGStats *stats);
 

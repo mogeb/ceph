@@ -331,21 +331,40 @@ void DaemonServer::check_subs()
 //    dout(1) << "mogeb: NOT publishing!" << dendl;
 //  }
 
-  for (unsigned i = 0; i < sessions.size(); i++) {
-    dout(1) << "mogeb: 1" << dendl;
-    for (map<string, vector<MgrSubscription*> *>::iterator it = sessions[i]->subs.begin();
-         it != sessions[i]->subs.end();
-         it++) {
-      dout(1) << "mogeb: 2" << dendl;
-      for (unsigned j = 0; j < it->second->size(); j++) {
-        dout(1) << "mogeb: 3" << dendl;
-        vector<MgrSubscription*> *v = it->second;
-        MgrSubscription *s = (*v)[j];
-        s->con->send_message(new MIostat());
-        dout(1) << "mgebai: checking sub" << dendl;
+  cluster_state.with_mutable_pgmap([&](PGMap& pg_map) {
+    std::ostream out(NULL);
+    cluster_state.update_delta_stats();
+    pg_map.print_oneline_summary(NULL, &out);
+
+    std::stringbuf str;
+    out.rdbuf(&str);
+    std::cout << "mogeb OUT:" << str.str() << std::endl;
+    dout(1) << "mogeb OUT: " << str.str() << dendl;
+
+    pool_stat_t pos_delta = cluster_state.pg_map.pg_sum_delta;
+    int64_t wr = (pos_delta.stats.sum.num_wr_kb << 10);
+    dout(1) << "mogeb__:" << pretty_si_t(wr) << "B/s wr, " << dendl;
+//  dout(1) << " mogeb: wr = " << out << dendl;
+
+    for (unsigned i = 0; i < sessions.size(); i++) {
+      dout(1) << "mogeb: 1" << dendl;
+      for (map<string, vector<MgrSubscription*> *>::iterator it = sessions[i]->subs.begin();
+           it != sessions[i]->subs.end();
+           it++) {
+        dout(1) << "mogeb: 2" << dendl;
+        for (unsigned j = 0; j < it->second->size(); j++) {
+          dout(1) << "mogeb: 3" << dendl;
+          vector<MgrSubscription*> *v = it->second;
+          MgrSubscription *s = (*v)[j];
+          auto m = new MIostat();
+          ::encode(pending_service_map, m->service_map_bl, CEPH_FEATURES_ALL);
+          m->iostuff = wr;
+          s->con->send_message(m);
+          dout(1) << "mgebai: checking sub" << dendl;
+        }
       }
     }
-  }
+  });
 }
 
 void DaemonServer::maybe_ready(int32_t osd_id)

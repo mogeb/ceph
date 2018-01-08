@@ -1550,6 +1550,7 @@ Rados object in state %s." % self.state)
     #     return r
     def ceph_iostat(self, callback, arg):
         global mogeb_cb
+        global mogeb_arg
 
         if callback is not None and not callable(callback):
             raise LogicError("callback must be a callable function or None")
