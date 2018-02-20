@@ -46,6 +46,7 @@ add_library(osd STATIC ${osd_srcs}
 target_link_libraries(osd ${LEVELDB_LIBRARIES} dmclock ${CMAKE_DL_LIBS} ${ALLOC_LIBS})
 if(WITH_LTTNG)
   add_dependencies(osd osd-tp pg-tp)
+  add_dependencies(osd ceph_logging_tp)
 endif()
 if(WITH_LTTNG AND WITH_EVENTTRACE)
   add_dependencies(osd eventtrace_tp)
