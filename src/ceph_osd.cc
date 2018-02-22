@@ -20,6 +20,7 @@
 #include <iostream>
 #include <string>
 using namespace std;
+#include <lttng/lttng.h>
 
 #include "osd/OSD.h"
 #include "os/ObjectStore.h"
