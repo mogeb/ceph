@@ -5,8 +5,8 @@ from mgr_module import MgrModule
 class Module(MgrModule):
     COMMANDS = [
         {
-            "cmd": "mgr iostat",
-            "desc": "Get IO rates v3",
+            "cmd": "iostat",
+            "desc": "Get IO rates",
             "perm": "r",
             "poll": "true"
         }
