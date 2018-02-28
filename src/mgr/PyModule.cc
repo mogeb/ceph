@@ -364,6 +364,17 @@ int PyModule::load_commands()
     assert(pPerm != nullptr);
     item.perm = PyString_AsString(pPerm);
 
+    item.polling = false;
+    PyObject *pPoll = PyDict_GetItemString(command, "poll");
+    if (pPoll) {
+      std::string polling = PyString_AsString(pPoll);
+      std::transform(polling.begin(), polling.end(), polling.begin(),
+          [](char c) {return std::tolower(c);});
+      if (polling == "true") {
+        item.polling = true;
+      }
+    }
+
     item.module_name = module_name;
 
     commands.push_back(item);
