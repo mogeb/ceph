@@ -319,6 +319,9 @@ def parse_cmdargs(args=None, target=''):
 
     parser.add_argument('--block', action='store_true',
                         help='block until completion (scrub and deep-scrub only)')
+    parser.add_argument('--period', '-p', default=1, type=float,
+                        help='polling period, default 1.0 second (for ' \
+                        'polling commands only)')
 
     # returns a Namespace with the parsed args, and a list of all extras
     parsed_args, extras = parser.parse_known_args(args)
@@ -547,7 +550,9 @@ def do_command(parsed_args, target, cmdargs, sigdict, inbuf, verbose):
             print(outbuf)
         if outs:
             print(outs, file=sys.stderr)
-        sleep(1)
+        if parsed_args.period <= 0:
+            break
+        sleep(parsed_args.period)
 
     return ret, outbuf, outs
 
