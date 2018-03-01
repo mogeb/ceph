@@ -516,21 +516,6 @@ else:
             if line:
                 return line
 
-def run_and_print_cmd(target, cmdargs, valid_dict, sigdict, inbuf, verbose):
-    ret, outbuf, outs = json_command(cluster_handle, target=target, argdict=valid_dict,
-        inbuf=inbuf)
-
-    if ret:
-        ret = abs(ret)
-        print('Error: {0} {1}'.format(ret, errno.errorcode.get(ret, 'Unknown')),
-                file=sys.stderr)
-    if outbuf:
-        print(outbuf)
-    if outs:
-        print(outs, file=sys.stderr)
-
-    return ret, outbuf, outs
-
 
 def do_command(parsed_args, target, cmdargs, sigdict, inbuf, verbose):
     ''' Validate a command, and handle the polling flag '''
@@ -546,12 +531,23 @@ def do_command(parsed_args, target, cmdargs, sigdict, inbuf, verbose):
     else:
         return -errno.EINVAL, '', 'invalid command'
 
-    if 'poll' in valid_dict and valid_dict['poll']:
-        while True:
-            run_and_print_cmd(target, cmdargs, valid_dict, sigdict, inbuf, verbose)
-            sleep(1)
-    else:
-        ret, outbuf, outs = run_and_print_cmd(target, cmdargs, valid_dict, sigdict, inbuf, verbose)
+    while True:
+        ret, outbuf, outs = json_command(cluster_handle, target=target, argdict=valid_dict,
+                inbuf=inbuf)
+
+        if 'poll' not in valid_dict or not valid_dict['poll']:
+            # Don't print here if it's not a polling command
+            break
+
+        if ret:
+            ret = abs(ret)
+            print('Error: {0} {1}'.format(ret, errno.errorcode.get(ret, 'Unknown')),
+                    file=sys.stderr)
+        if outbuf:
+            print(outbuf)
+        if outs:
+            print(outs, file=sys.stderr)
+        sleep(1)
 
     return ret, outbuf, outs
 
