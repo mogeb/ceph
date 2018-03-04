@@ -1,0 +1,21 @@
+#include "include/int_types.h"
+
+TRACEPOINT_EVENT(analyze, copy_out_begin,
+  TP_ARGS(int, payload),
+  TP_FIELDS(ctf_integer(int, payload, payload))
+)
+
+TRACEPOINT_EVENT(analyze, copy_out_end,
+  TP_ARGS(int, payload),
+  TP_FIELDS(ctf_integer(int, payload, payload))
+)
+
+TRACEPOINT_EVENT(analyze, copy_in_begin,
+  TP_ARGS(int, payload),
+  TP_FIELDS(ctf_integer(int, payload, payload))
+)
+
+TRACEPOINT_EVENT(analyze, copy_in_end,
+  TP_ARGS(int, payload),
+  TP_FIELDS(ctf_integer(int, payload, payload))
+)

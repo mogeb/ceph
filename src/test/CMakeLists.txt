@@ -714,6 +714,7 @@ add_executable(unittest_bufferlist
   )
 add_ceph_unittest(unittest_bufferlist)
 target_link_libraries(unittest_bufferlist global)
+target_link_libraries(unittest_bufferlist analyze_tp)
 
 # unittest_xlist
 add_executable(unittest_xlist

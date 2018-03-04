@@ -32,9 +32,20 @@
 #include "include/types.h"
 #include "include/spinlock.h"
 #include "include/scope_guard.h"
+#include <lttng/lttng.h>
 
 #if defined(HAVE_XIO)
 #include "msg/xio/XioMsg.h"
+#endif
+
+#ifdef WITH_LTTNG
+#define TRACEPOINT_DEFINE
+#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
+#include "tracing/analyze.h"
+#undef TRACEPOINT_PROBE_DYNAMIC_LINKAGE
+#undef TRACEPOINT_DEFINE
+#else
+#define tracepoint(...)
 #endif
 
 using namespace ceph;
@@ -1029,10 +1040,12 @@ public:
 
   void buffer::ptr::copy_out(unsigned o, unsigned l, char *dest) const {
     assert(_raw);
+    tracepoint(analyze, copy_out_begin, 0);
     if (o+l > _len)
         throw end_of_buffer();
     char* src =  _raw->data + _off + o;
     maybe_inline_memcpy(dest, src, l, 8);
+    tracepoint(analyze, copy_out_end, 0);
   }
 
   unsigned buffer::ptr::wasted() const
@@ -1491,6 +1504,7 @@ public:
     if (p == ls->end())
       seek(off);
     unsigned left = len;
+    tracepoint(analyze, copy_in_begin, 0);
     for (const auto& b : otherl._buffers) {
       unsigned l = b.length();
       if (left < l)
@@ -1500,6 +1514,7 @@ public:
       if (left == 0)
 	break;
     }
+    tracepoint(analyze, copy_in_end, 0);
   }
 
   // -- buffer::list --
