@@ -2644,7 +2644,7 @@ std::ostream& buffer::operator<<(std::ostream& out, const buffer::ptr& bp) {
 std::ostream& buffer::operator<<(std::ostream& out, const buffer::list& bl) {
   out << "buffer::list(len=" << bl.length() << "," << std::endl;
 
-  std::list<buffer::ptr>::const_iterator it = bl.buffers().begin();
+  std::vector<buffer::ptr>::const_iterator it = bl.buffers().begin();
   while (it != bl.buffers().end()) {
     out << "\t" << *it;
     if (++it == bl.buffers().end()) break;

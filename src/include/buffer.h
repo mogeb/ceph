@@ -359,7 +359,8 @@ namespace buffer CEPH_BUFFER_API {
 
   class CEPH_BUFFER_API list {
     // my private bits
-    std::list<ptr> _buffers;
+//    std::list<ptr> _buffers;
+    std::vector<ptr> _buffers;
     unsigned _len;
     unsigned _memcopy_count; //the total of memcopy using rebuild().
     ptr append_buffer;  // where i put small appends.
@@ -376,11 +377,11 @@ namespace buffer CEPH_BUFFER_API {
 					const list,
 					list>::type bl_t;
       typedef typename std::conditional<is_const,
-					const std::list<ptr>,
-					std::list<ptr> >::type list_t;
+                                        const std::vector<ptr>,
+                                        std::vector<ptr> >::type list_t;
       typedef typename std::conditional<is_const,
-					typename std::list<ptr>::const_iterator,
-					typename std::list<ptr>::iterator>::type list_iter_t;
+                                        typename std::vector<ptr>::const_iterator,
+                                        typename std::vector<ptr>::iterator>::type list_iter_t;
       bl_t* bl;
       list_t* ls;  // meh.. just here to avoid an extra pointer dereference..
       unsigned off; // in bl
@@ -713,7 +714,7 @@ namespace buffer CEPH_BUFFER_API {
     }
 
     unsigned get_memcopy_count() const {return _memcopy_count; }
-    const std::list<ptr>& buffers() const { return _buffers; }
+    const std::vector<ptr>& buffers() const { return _buffers; }
     void swap(list& other);
     unsigned length() const {
 #if 0
