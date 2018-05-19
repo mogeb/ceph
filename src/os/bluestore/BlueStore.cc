@@ -5370,7 +5370,8 @@ int BlueStore::mkfs()
   if (r < 0) {
     derr << __func__ << " failed, " << cpp_strerror(r) << dendl;
   } else {
-    dout(0) << __func__ << " success" << dendl;
+//    dout(0) << __func__ << " success" << dendl;
+    trace_bluestore_mkfs(1);
   }
   return r;
 }
@@ -6483,7 +6484,8 @@ int BlueStore::read(
     derr << __func__ << " " << c->cid << " " << oid << " INJECT EIO" << dendl;
   } else if (cct->_conf->bluestore_debug_random_read_err &&
     (rand() % (int)(cct->_conf->bluestore_debug_random_read_err * 100.0)) == 0) {
-    dout(0) << __func__ << ": inject random EIO" << dendl;
+//    dout(0) << __func__ << ": inject random EIO" << dendl;
+    trace_bluestore_read_inject_random_eio(0);
     r = -EIO;
   }
   dout(10) << __func__ << " " << cid << " " << oid
@@ -8657,9 +8659,10 @@ void BlueStore::_kv_sync_thread()
 	for (auto p = bluefs_extents_reclaiming.begin();
 	     p != bluefs_extents_reclaiming.end();
 	     ++p) {
-	  dout(20) << __func__ << " releasing old bluefs 0x" << std::hex
-		   << p.get_start() << "~" << p.get_len() << std::dec
-		   << dendl;
+//	  dout(20) << __func__ << " releasing old bluefs 0x" << std::hex
+//		   << p.get_start() << "~" << p.get_len() << std::dec
+//		   << dendl;
+          trace_kv_sync_releasing_old_bluefs(bluefs_extents_reclaiming);
 	  alloc->release(p.get_start(), p.get_len());
 	}
 	bluefs_extents_reclaiming.clear();
@@ -8983,8 +8986,9 @@ int BlueStore::queue_transactions(
     tls, &onreadable, &ondisk, &onreadable_sync);
 
   if (cct->_conf->objectstore_blackhole) {
-    dout(0) << __func__ << " objectstore_blackhole = TRUE, dropping transaction"
-	    << dendl;
+//    dout(0) << __func__ << " objectstore_blackhole = TRUE, dropping transaction"
+//	    << dendl;
+    trace_bluestore_queue_transaction_blackhole(0);
     delete ondisk;
     delete onreadable;
     delete onreadable_sync;
