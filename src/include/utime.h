@@ -182,6 +182,12 @@ public:
     return ts;
   }
 
+  operator std::string() {
+    std::stringstream out;
+    out << this;
+    return out.str();
+  }
+
   void sleep() const {
     struct timespec ts;
     to_timespec(&ts);
