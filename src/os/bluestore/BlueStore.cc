@@ -3825,11 +3825,12 @@ int BlueStore::_set_cache_sizes()
     // deal with floating point imprecision
     cache_data_ratio = 0;
   }
-  dout(1) << __func__ << " cache_size " << cache_size
-          << " meta " << cache_meta_ratio
-	  << " kv " << cache_kv_ratio
-	  << " data " << cache_data_ratio
-	  << dendl;
+//  dout(1) << __func__ << " cache_size " << cache_size
+//          << " meta " << cache_meta_ratio
+//	  << " kv " << cache_kv_ratio
+//	  << " data " << cache_data_ratio
+//	  << dendl;
+  trace_bluestore_show_cache_sizes(cache_size, cache_meta_ratio, cache_kv_ratio, cache_data_ratio);
   return 0;
 }
 
@@ -4289,9 +4290,11 @@ int BlueStore::_open_fm(bool create)
 
     if (cct->_conf->bluestore_debug_prefill > 0) {
       uint64_t end = bdev->get_size() - reserved;
-      dout(1) << __func__ << " pre-fragmenting freespace, using "
-	      << cct->_conf->bluestore_debug_prefill << " with max free extent "
-	      << cct->_conf->bluestore_debug_prefragment_max << dendl;
+//      dout(1) << __func__ << " pre-fragmenting freespace, using "
+//	      << cct->_conf->bluestore_debug_prefill << " with max free extent "
+//	      << cct->_conf->bluestore_debug_prefragment_max << dendl;
+      trace_bluestore_open_fm_pre_fragmenting(cct->_conf->bluestore_debug_prefill,
+       cct->_conf->bluestore_debug_prefragment_max);
       uint64_t start = P2ROUNDUP(reserved, min_alloc_size);
       uint64_t max_b = cct->_conf->bluestore_debug_prefragment_max / min_alloc_size;
       float r = cct->_conf->bluestore_debug_prefill;
@@ -4366,7 +4369,8 @@ int BlueStore::_open_alloc()
 
   uint64_t num = 0, bytes = 0;
 
-  dout(1) << __func__ << " opening allocation metadata" << dendl;
+//  dout(1) << __func__ << " opening allocation metadata" << dendl;
+  trace_bluestore_opening_allocation_metadata(0);
   // initialize from freelist
   fm->enumerate_reset();
   uint64_t offset, length;
@@ -4376,9 +4380,10 @@ int BlueStore::_open_alloc()
     bytes += length;
   }
   fm->enumerate_reset();
-  dout(1) << __func__ << " loaded " << byte_u_t(bytes)
-	  << " in " << num << " extents"
-	  << dendl;
+//  dout(1) << __func__ << " loaded " << byte_u_t(bytes)
+//	  << " in " << num << " extents"
+//	  << dendl;
+  trace_bluestore_open_alloc_loaded_extents(byte_u_t(bytes), num);
 
   // also mark bluefs space as allocated
   for (auto e = bluefs_extents.begin(); e != bluefs_extents.end(); ++e) {
@@ -4824,8 +4829,9 @@ int BlueStore::_open_db(bool create)
     db = NULL;
     return -EIO;
   }
-  dout(1) << __func__ << " opened " << kv_backend
-	  << " path " << fn << " options " << options << dendl;
+//  dout(1) << __func__ << " opened " << kv_backend
+//	  << " path " << fn << " options " << options << dendl;
+  trace_bluestore_open_db(kv_backend, fn, options);
   return 0;
 
 free_bluefs:
@@ -5720,7 +5726,8 @@ int BlueStore::_fsck(bool deep, bool repair)
   expected_statfs.available = actual_statfs.available;
 
   // walk PREFIX_OBJ
-  dout(1) << __func__ << " walking object keyspace" << dendl;
+//  dout(1) << __func__ << " walking object keyspace" << dendl;
+  trace_bluestore_fsck_walking_object_keyspace(0);
   it = db->get_iterator(PREFIX_OBJ);
   if (it) {
     CollectionRef c;
@@ -6012,7 +6019,8 @@ int BlueStore::_fsck(bool deep, bool repair)
       }
     }
   }
-  dout(1) << __func__ << " checking shared_blobs" << dendl;
+//  dout(1) << __func__ << " checking shared_blobs" << dendl;
+  trace_bluestore_fsck_checking_shared_blobs(0);
   it = db->get_iterator(PREFIX_SHARED_BLOB);
   if (it) {
     for (it->lower_bound(string()); it->valid(); it->next()) {
@@ -6068,7 +6076,8 @@ int BlueStore::_fsck(bool deep, bool repair)
     ++errors;
   }
 
-  dout(1) << __func__ << " checking for stray omap data" << dendl;
+//  dout(1) << __func__ << " checking for stray omap data" << dendl;
+  trace_bluestore_fsck_checking_for_stray_omap_data(0);
   it = db->get_iterator(PREFIX_OMAP);
   if (it) {
     for (it->lower_bound(string()); it->valid(); it->next()) {
@@ -6082,7 +6091,8 @@ int BlueStore::_fsck(bool deep, bool repair)
     }
   }
 
-  dout(1) << __func__ << " checking deferred events" << dendl;
+//  dout(1) << __func__ << " checking deferred events" << dendl;
+  trace_bluestore_fsck_checking_deferred_events(0);
   it = db->get_iterator(PREFIX_DEFERRED);
   if (it) {
     for (it->lower_bound(string()); it->valid(); it->next()) {
@@ -6112,7 +6122,8 @@ int BlueStore::_fsck(bool deep, bool repair)
     }
   }
 
-  dout(1) << __func__ << " checking freelist vs allocated" << dendl;
+//  dout(1) << __func__ << " checking freelist vs allocated" << dendl;
+  trace_bluestore_fsck_checking_freelist_vs_allocated(0);
   {
     // remove bluefs_extents from used set since the freelist doesn't
     // know they are allocated.
@@ -7780,8 +7791,9 @@ int BlueStore::_open_super_meta()
 
 int BlueStore::_upgrade_super()
 {
-  dout(1) << __func__ << " from " << ondisk_format << ", latest "
-	  << latest_ondisk_format << dendl;
+//  dout(1) << __func__ << " from " << ondisk_format << ", latest "
+//	  << latest_ondisk_format << dendl;
+  trace_bluestore_upgrade_super_start(ondisk_format, latest_ondisk_format);
   assert(ondisk_format > 0);
   assert(ondisk_format < latest_ondisk_format);
 
@@ -7815,7 +7827,8 @@ int BlueStore::_upgrade_super()
   }
 
   // done
-  dout(1) << __func__ << " done" << dendl;
+//  dout(1) << __func__ << " done" << dendl;
+  trace_bluestore_upgrade_super_done(0);
   return 0;
 }
 
