@@ -45,8 +45,6 @@ using namespace std;
 
 #include "include/assert.h"
 
-#include "tracing/ceph_logging_impl.h"
-
 #define dout_subsys ceph_subsys_mon
 
 Monitor *mon = NULL;
