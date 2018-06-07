@@ -3814,7 +3814,7 @@ public:
   virtual bool is_missing(const hobject_t& oid, eversion_t v) const = 0;
   virtual eversion_t have_old(const hobject_t& oid) const = 0;
   virtual ~pg_missing_const_i() {}
-  virtual operator std::string() { return "needs implementation"; }
+  virtual operator std::string() = 0;
 };
 
 
