@@ -1546,7 +1546,8 @@ BlueStore::OnodeRef BlueStore::OnodeSpace::lookup(const ghobject_t& oid)
 void BlueStore::OnodeSpace::clear()
 {
   std::lock_guard<std::recursive_mutex> l(cache->lock);
-  trace_onodespace_clear(0);
+//  ldout(cache->cct, 10) << __func__ << dendl;
+//  trace_onodespace_clear(0);
   for (auto &p : onode_map) {
     cache->_rm_onode(p.second);
   }
@@ -4530,7 +4531,7 @@ int BlueStore::_open_db(bool create)
       return -EIO;
     }
   }
-  dout(10) << __func__ << " kv_backend = " << kv_backend << dendl;
+  trace_open_db_kv_backend(kv_backend);
 
   bool do_bluefs;
   if (create) {
@@ -4552,7 +4553,7 @@ int BlueStore::_open_db(bool create)
       return -EIO;
     }
   }
-  dout(10) << __func__ << " do_bluefs = " << do_bluefs << dendl;
+  trace_open_db_do_bluefs(do_bluefs);
 
   rocksdb::Env *env = NULL;
   if (do_bluefs) {
