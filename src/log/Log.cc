@@ -222,7 +222,7 @@ void Log::stop_graylog()
 void Log::submit_entry(Entry *e, bool logging_legacy)
 {
   if (!logging_legacy) {
-    tracepoint(ceph_logging, log_message, (char*)e->get_str().c_str());
+    tracepoint(ceph_log, log_message, (char*)e->get_str().c_str());
     return;
   }
 
