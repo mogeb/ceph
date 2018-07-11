@@ -47,7 +47,6 @@ target_link_libraries(osd ${LEVELDB_LIBRARIES} dmclock ${CMAKE_DL_LIBS} ${ALLOC_
 if(WITH_LTTNG_LOGGING)
   target_link_libraries(osd logging_tp)
   target_link_libraries(osd lttng-ust-fork)
-  add_dependencies(osd pg-tp)
 endif()
 
 if(WITH_LTTNG)
