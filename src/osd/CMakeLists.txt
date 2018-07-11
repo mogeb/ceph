@@ -45,6 +45,7 @@ add_library(osd STATIC ${osd_srcs}
   $<TARGET_OBJECTS:heap_profiler_objs>)
 target_link_libraries(osd ${LEVELDB_LIBRARIES} dmclock ${CMAKE_DL_LIBS} ${ALLOC_LIBS})
 if(WITH_LTTNG_LOGGING)
+  add_dependencies(osd bluestore-parsetool)
   target_link_libraries(osd logging_tp)
   target_link_libraries(osd lttng-ust-fork)
 endif()
