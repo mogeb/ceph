@@ -1044,12 +1044,6 @@ public:
       if (--nref == 0)
 	delete this;
     }
-
-    operator std::string() {
-      std::stringstream out;
-      out << this;
-      return out.str();
-    }
   };
   typedef boost::intrusive_ptr<Onode> OnodeRef;
 

@@ -183,8 +183,8 @@ public:
   }
 
   operator std::string() {
-    std::stringstream out;
-    out << this;
+    stringstream out;
+    localtime(out);
     return out.str();
   }
 
