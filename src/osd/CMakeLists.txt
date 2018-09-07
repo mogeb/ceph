@@ -46,8 +46,12 @@ add_library(osd STATIC ${osd_srcs}
 target_link_libraries(osd ${LEVELDB_LIBRARIES} dmclock ${CMAKE_DL_LIBS} ${ALLOC_LIBS})
 if(WITH_LTTNG_LOGGING)
   add_dependencies(osd bluestore-parsetool)
-  target_link_libraries(osd logging_tp)
-  target_link_libraries(osd lttng-ust-fork)
+  target_link_libraries(osd PRIVATE logging_tp)
+  target_link_libraries(osd PRIVATE ceph_logging_tp)
+  target_link_libraries(osd PRIVATE lttng-ust-fork)
+
+  find_package (fmt 3.0.2 REQUIRED)
+  target_link_libraries(osd PUBLIC fmt::fmt)
 endif()
 
 if(WITH_LTTNG)
