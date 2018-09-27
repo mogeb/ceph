@@ -38,7 +38,7 @@
 #include "tracing/bluefs_impl.h"
 #include "tracing/bluestore_blob_impl.h"
 #include "tracing/bluestore_lru_cache_impl.h"
-#if WITH_LTTNG_LOGGING
+#ifdef WITH_LTTNG_LOGGING
 #include "tracing/ceph_logging_impl.h"
 #endif
 
@@ -5020,9 +5020,10 @@ int BlueStore::_balance_bluefs_freespace(PExtentVector *extents)
 					0, 0, &exts);
 
     if (alloc_len <= 0) {
-//      dout(1) << __func__ << " no allocate on 0x" << std::hex << gift
-//              << " min_alloc_size 0x" << min_alloc_size << std::dec << dendl;
-      trace_balance_freespace_no_allocate(gift, min_alloc_size);
+      trace_balance_freespace_no_allocate(1, bluefs,
+        uint64_t, gift, gift,
+        uint64_t, min_alloc_size, min_alloc_size,
+        "no allocate on 0x%x min_alloc_size 0x%x");
       alloc->unreserve(gift);
       alloc->dump();
       return 0;
@@ -5031,17 +5032,19 @@ int BlueStore::_balance_bluefs_freespace(PExtentVector *extents)
 //              << " min_alloc_size 0x" << min_alloc_size
 //	      << " allocated 0x" << alloc_len
 //	      << std::dec << dendl;
-      trace_balance_freespace_no_allocate(0, bluefs,
+      trace_balance_freespace_insufficient_allocate(1, bluefs,
         uint64_t, gift, gift,
         uint64_t, min_alloc_size, min_alloc_size,
-        "no allocate on 0x%x min_alloc_size 0x%x");
+        "insufficient allocate on 0x%x min_alloc_size 0x%x");
       alloc->unreserve(gift - alloc_len);
       alloc->dump();
     }
     for (auto& p : exts) {
       bluestore_pextent_t e = bluestore_pextent_t(p);
-//      dout(1) << __func__ << " gifting " << e << " to bluefs" << dendl;
-      trace_balance_freespace_gifting_to_bluefs(e);
+      trace_balance_freespace_gifting_to_bluefs(1, bluefs,
+        bluestore_pextent_t, extent, e,
+        "gifting %s to bluefs");
+
       extents->push_back(e);
     }
     gift = 0;

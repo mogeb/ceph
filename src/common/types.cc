@@ -17,6 +17,7 @@
 #define __CEPH_TYPES_H
 
 #include <include/types.h>
+#include <sstream>
 
 #ifndef UINT8_MAX
 #define UINT8_MAX (255)

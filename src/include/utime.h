@@ -19,6 +19,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <errno.h>
+#include <sstream>
 
 #include "include/types.h"
 #include "include/timegm.h"

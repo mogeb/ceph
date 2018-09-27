@@ -59,7 +59,7 @@ public:
 				      CephContext* >::value,		\
 		  "provided cct must be compatible with CephContext*"); \
     auto _dout_cct = cct;						\
-    std::ostream* _dout = &_dout_e->get_ostream();                      \
+    std::ostream* _dout = &_dout_os;                                    \
     bool __logging_legacy = cct->_conf->logging_legacy;
 
 #define lsubdout(cct, sub, v)  dout_impl(cct, ceph_subsys_##sub, v) dout_prefix

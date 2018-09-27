@@ -19,7 +19,7 @@
 #include <iterator>
 #include <map>
 #include <ostream>
-
+#include <sstream>
 #include "encoding.h"
 
 /*

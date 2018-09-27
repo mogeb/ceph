@@ -49,7 +49,7 @@
 #define dout_context g_ceph_context
 #define dout_subsys ceph_subsys_osd
 
-#if WITH_LTTNG_LOGGING
+#ifdef WITH_LTTNG_LOGGING
 #define TRACEPOINT_DEFINE
 #define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
 #include "tracing/ceph_logging.h"

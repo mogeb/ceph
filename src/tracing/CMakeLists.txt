@@ -75,8 +75,8 @@ add_tracing_library(osd_tp "${osd_traces}" 1.0.0)
 add_tracing_library(rados_tp librados.tp 2.0.0)
 add_tracing_library(os_tp objectstore.tp 1.0.0)
 
-add_tracing_library(rgw_op_tp rgw_op.tp 1.0.0)
-add_tracing_library(rgw_rados_tp rgw_rados.tp 1.0.0)
+#add_tracing_library(rgw_op_tp rgw_op.tp 1.0.0)
+#add_tracing_library(rgw_rados_tp rgw_rados.tp 1.0.0)
 
 if(WITH_LTTNG_LOGGING)
   add_tracing_library(ceph_logging_tp ceph_logging.tp 1.0.0)
@@ -86,9 +86,9 @@ if(WITH_LTTNG_LOGGING)
   endforeach()
 
   add_tracing_library(logging_tp "${logging_tps}" 1.0.0)
-  install(TARGETS rados_tp osd_tp logging_tp ceph_logging_tp os_tp rgw_rados_tp rgw_op_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(TARGETS rados_tp osd_tp logging_tp ceph_logging_tp os_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})
 else()
-  install(TARGETS rados_tp osd_tp os_tp rgw_rados_tp rgw_op_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  install(TARGETS rados_tp osd_tp os_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
 if(WITH_RBD)
