@@ -50,14 +50,14 @@ target_link_libraries(osd
   ${LEVELDB_LIBRARIES}
   heap_profiler cpu_profiler ${CMAKE_DL_LIBS} lttng-ctl)
 if(WITH_LTTNG_LOGGING)
-  add_dependencies(osd bluestore-parsetool)
-  target_link_libraries(osd PRIVATE logging_tp)
-  target_link_libraries(osd PRIVATE ceph_logging_tp)
-  target_link_libraries(osd PRIVATE lttng-ust-fork)
+#  add_dependencies(osd bluestore-parsetool)
+#  target_link_libraries(osd PRIVATE logging_tp)
+#  target_link_libraries(osd PRIVATE ceph_logging_tp)
+#  target_link_libraries(osd PRIVATE lttng-ust-fork)
 
-  find_package (fmt 3.0.2 REQUIRED)
+#  find_package (fmt 3.0.2 REQUIRED)
   target_link_libraries(osd PUBLIC fmt::fmt)
-endif()
+#endif()
 
 if(WITH_LTTNG)
   add_dependencies(osd osd-tp)
