@@ -1,0 +1,112 @@
+#include "include/int_types.h"
+
+TRACEPOINT_EVENT(
+   bluestore_gc,
+   process_protrusive_extents_lookup_offset,
+   TP_ARGS(uint64_t, lookup_start_offset,
+      uint64_t, lookup_end_offset),
+   TP_FIELDS(
+       ctf_integer_hex(uint64_t, lookup_start_offset, lookup_start_offset)
+       ctf_integer_hex(uint64_t, lookup_end_offset, lookup_end_offset)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_gc, process_protrusive_extents_lookup_offset, TRACE_ERR)
+
+TRACEPOINT_EVENT(
+   bluestore_gc,
+   process_protrusive_extents_alloc,
+   TP_ARGS(uint64_t, alloc_unit_start,
+      uint64_t, alloc_unit_end),
+   TP_FIELDS(
+       ctf_integer(uint64_t, alloc_unit_start, alloc_unit_start)
+       ctf_integer(uint64_t, alloc_unit_end, alloc_unit_end)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_gc, process_protrusive_extents_alloc, TRACE_ERR)
+
+TRACEPOINT_EVENT(
+   bluestore_gc,
+   process_protrusive_extents_expected,
+   TP_ARGS(uint64_t, alloc_unit_start),
+   TP_FIELDS(
+       ctf_integer(uint64_t, alloc_unit_start, alloc_unit_start)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_gc, process_protrusive_extents_expected, TRACE_DEBUG)
+
+TRACEPOINT_EVENT(
+   bluestore_gc,
+   process_protrusive_extents_expected_allocations,
+   TP_ARGS(uint64_t, expected_allocations,
+      uint64_t, alloc_unit_end),
+   TP_FIELDS(
+       ctf_integer(uint64_t, expected_allocations, expected_allocations)
+       ctf_integer(uint64_t, alloc_unit_end, alloc_unit_end)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_gc, process_protrusive_extents_expected_allocations, TRACE_DEBUG)
+
+TRACEPOINT_EVENT(
+   bluestore_gc,
+   process_protrusive_extents_affected_blob,
+   TP_ARGS(char *, affected_blob,
+      uint64_t, length,
+      uint64_t, referenced_bytes),
+   TP_FIELDS(
+       ctf_string(affected_blob, affected_blob)
+       ctf_integer_hex(uint64_t, length, length)
+       ctf_integer_hex(uint64_t, referenced_bytes, referenced_bytes)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_gc, process_protrusive_extents_affected_blob, TRACE_DEBUG)
+
+TRACEPOINT_EVENT(
+   bluestore_gc,
+   process_protrusive_extents_expected_allocations_start,
+   TP_ARGS(uint64_t, alloc_unit_start),
+   TP_FIELDS(
+       ctf_integer(uint64_t, alloc_unit_start, alloc_unit_start)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_gc, process_protrusive_extents_expected_allocations_start, TRACE_DEBUG)
+
+TRACEPOINT_EVENT(
+   bluestore_gc,
+   process_protrusive_extents_expected4release,
+   TP_ARGS(char *, blob,
+      int64_t, blob_expected_for_release,
+      int64_t, expected_allocations),
+   TP_FIELDS(
+       ctf_string(blob, blob)
+       ctf_integer(int64_t, blob_expected_for_release, blob_expected_for_release)
+       ctf_integer(int64_t, expected_allocations, expected_allocations)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_gc, process_protrusive_extents_expected4release, TRACE_DEBUG)
+
+TRACEPOINT_EVENT(
+   bluestore_gc,
+   estimate_affected_blob,
+   TP_ARGS(char *, affected_blob,
+      uint64_t, logical_offset,
+      uint64_t, length),
+   TP_FIELDS(
+       ctf_string(affected_blob, affected_blob)
+       ctf_integer_hex(uint64_t, logical_offset, logical_offset)
+       ctf_integer(uint64_t, length, length)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_gc, estimate_affected_blob, TRACE_DEBUG)
+
+TRACEPOINT_EVENT(
+   bluestore_gc,
+   estimate_range,
+   TP_ARGS(uint64_t, gc_start_offset,
+      uint64_t, gc_end_offset),
+   TP_FIELDS(
+       ctf_integer_hex(uint64_t, gc_start_offset, gc_start_offset)
+       ctf_integer_hex(uint64_t, gc_end_offset, gc_end_offset)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_gc, estimate_range, TRACE_DEBUG)
+

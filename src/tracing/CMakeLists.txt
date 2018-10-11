@@ -26,7 +26,7 @@ message("2 RUNNING PARSETOOL")
 execute_process(
   COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t c --outdir ${CMAKE_BINARY_DIR})
 
-file(GLOB generated_tps "${tracing_build_dir}/*")
+file(GLOB all_files "${tracing_build_dir}/*")
 message("mogeb all files = ${all_files}")
 message("mogeb CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR}")
 file(GLOB generated_tps "${tracing_build_dir}/*.tp")
