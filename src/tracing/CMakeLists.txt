@@ -15,7 +15,7 @@ message("IN TRACING CMAKELISTS")
 execute_process(
   COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t tp --outdir ${CMAKE_BINARY_DIR})
 if(WITH_LTTNG_LOGGING)
-  message("1 RUNNING PARSETOOL")
+  message("1 RUNNING PARSETOOL for ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc")
   execute_process(
     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR})
 else()
@@ -28,7 +28,8 @@ execute_process(
 
 file(GLOB generated_tps "${tracing_build_dir}/*.tp")
 file(GLOB tps "*.tp")
-message("mogeb GENEARETD_TPS: ${generated_tps}")
+message("mogeb tracing_build_dir = ${tracing_build_dir}")
+message("mogeb GENERATED_TPS: ${generated_tps}")
 message("mogeb TPS: ${tps}")
 foreach(tp ${tps} ${generated_tps})
   message("mogeb in foreach TP: ${tp}")
