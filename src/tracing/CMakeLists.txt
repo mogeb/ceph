@@ -10,15 +10,19 @@ file(MAKE_DIRECTORY ${tracing_build_dir})
 
 add_custom_target(tracepoint_libraries)
 
+message("IN TRACING CMAKELISTS")
+
 execute_process(
   COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t tp --outdir ${CMAKE_BINARY_DIR})
 if(WITH_LTTNG_LOGGING)
+  message("1 RUNNING PARSETOOL")
   execute_process(
     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR})
 else()
   execute_process(
     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR} --disabled)
 endif()
+message("2 RUNNING PARSETOOL")
 execute_process(
   COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t c --outdir ${CMAKE_BINARY_DIR})
 
@@ -59,6 +63,9 @@ function(add_tracing_library name tracings version)
       list(APPEND tpfiles ${tracing_build_dir}/${tp}.c)
     endif()
   endforeach()
+  message("mogeb ${name}")
+  message("mogeb hrds = ${hdrs}")
+  message("mogeb tpfiles = ${tpfiles}")
   add_library(${name} SHARED ${hdrs} ${tpfiles})
   target_link_libraries(${name} ${LTTNGUST_LIBRARIES} ${CMAKE_DL_LIBS})
   string(REGEX MATCH "^[0-9]+" soversion ${version})
@@ -82,6 +89,7 @@ if(WITH_LTTNG_LOGGING)
   foreach(tp ${generated_tps})
     get_filename_component(name ${tp} NAME)
     set(logging_tps "${name};${logging_tps}")
+    message("SETTING LOGGING TPS: ${logging_tps}")
   endforeach()
 
   add_tracing_library(logging_tp "${logging_tps}" 1.0.0)
