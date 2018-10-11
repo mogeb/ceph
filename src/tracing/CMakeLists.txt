@@ -57,9 +57,9 @@ endforeach()
 #  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR}
 #  DEPENDS ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc
 #  COMMENT "Running parsetool.py")
-add_custom_target(
-  bluestore-parsetool
-  DEPENDS ${CMAKE_BINARY_DIR}/include/tracing/bluestore_impl.h)
+#add_custom_target(
+#  bluestore-parsetool
+#  DEPENDS ${CMAKE_BINARY_DIR}/include/tracing/bluestore_impl.h)
 
 function(add_tracing_library name tracings version)
   foreach(tp_file ${tracings})
