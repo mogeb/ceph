@@ -50,7 +50,7 @@ target_link_libraries(osd
   ${LEVELDB_LIBRARIES}
   heap_profiler cpu_profiler ${CMAKE_DL_LIBS} lttng-ctl)
 if(WITH_LTTNG_LOGGING)
-  add_dependencies(osd bluestore-parsetool)
+#  add_dependencies(osd bluestore-parsetool)
   target_link_libraries(osd PRIVATE logging_tp)
   target_link_libraries(osd PRIVATE ceph_logging_tp)
   target_link_libraries(osd PRIVATE lttng-ust-fork)
