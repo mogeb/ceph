@@ -16,15 +16,15 @@ execute_process(
   COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t tp --outdir ${CMAKE_BINARY_DIR})
 if(WITH_LTTNG_LOGGING)
   message("1 RUNNING PARSETOOL for ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc")
-  execute_process(
-    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR})
+#  execute_process(
+#    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR})
 else()
-  execute_process(
-    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR} --disabled)
+#  execute_process(
+#    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR} --disabled)
 endif()
 message("2 RUNNING PARSETOOL")
-execute_process(
-  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t c --outdir ${CMAKE_BINARY_DIR})
+#execute_process(
+#  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t c --outdir ${CMAKE_BINARY_DIR})
 
 file(GLOB all_files "${tracing_build_dir}/*")
 message("mogeb all files = ${all_files}")
@@ -36,7 +36,7 @@ set(generated_tps ${working_dir}/tracing/bluestore_gc.tp;${working_dir}/tracing/
 message("mogeb tracing_build_dir = ${tracing_build_dir}")
 message("mogeb GENERATED_TPS: ${generated_tps}")
 message("mogeb TPS: ${tps}")
-foreach(tp ${tps} ${generated_tps})
+foreach(tp ${tps})
   message("mogeb in foreach TP: ${tp}")
   get_filename_component(name ${tp} NAME_WE)
   message("mogeb in foreach NAME: ${name}")
@@ -52,11 +52,11 @@ foreach(tp ${tps} ${generated_tps})
     DEPENDS ${header})
 endforeach()
 
-add_custom_command(
-  OUTPUT ${CMAKE_BINARY_DIR}/include/tracing/bluestore_impl.h
-  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR}
-  DEPENDS ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc
-  COMMENT "Running parsetool.py")
+#add_custom_command(
+#  OUTPUT ${CMAKE_BINARY_DIR}/include/tracing/bluestore_impl.h
+#  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR}
+#  DEPENDS ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc
+#  COMMENT "Running parsetool.py")
 add_custom_target(
   bluestore-parsetool
   DEPENDS ${CMAKE_BINARY_DIR}/include/tracing/bluestore_impl.h)
