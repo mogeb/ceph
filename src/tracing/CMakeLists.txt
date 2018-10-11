@@ -28,8 +28,12 @@ execute_process(
 
 file(GLOB generated_tps "${tracing_build_dir}/*.tp")
 file(GLOB tps "*.tp")
+message("mogeb GENEARETD_TPS: ${generated_tps}")
+message("mogeb TPS: ${tps}")
 foreach(tp ${tps} ${generated_tps})
+  message("mogeb in foreach TP: ${tp}")
   get_filename_component(name ${tp} NAME_WE)
+  message("mogeb in foreach NAME: ${name}")
   set(header ${header_dir}/${name}.h)
   add_custom_command(
     OUTPUT ${header}
