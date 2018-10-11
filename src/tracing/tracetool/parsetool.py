@@ -94,6 +94,7 @@ class Wrapper(object):
 
 class LTTngWrapper(Wrapper):
     def generate_tp_file(self, events, outdir):
+        print("mogeb- generate_tp_file")
         fhandles = {}
         for e in events:
             if e.subsys not in fhandles:
@@ -160,6 +161,7 @@ class LTTngWrapper(Wrapper):
 
 
     def generate_c(self, events, outdir):
+        print("mogeb- generate_c_file")
         fhandles = {}
         for e in events:
             if e.subsys not in fhandles:
@@ -182,8 +184,10 @@ class LTTngWrapper(Wrapper):
 
 
     def generate_header(self, events, outdir, disabled):
+        print("mogeb- generate_header_file")
         fhandles = {}
         for e in events:
+            print('mogeb event ' + e.name)
             if e.subsys not in fhandles:
                 fhandles[e.subsys] = open(outdir + "/include/tracing/" + e.subsys + "_impl.h", "w")
                 fobj = fhandles[e.subsys]
@@ -485,4 +489,5 @@ def main(args):
 
 
 if __name__ == "__main__":
+    print("mogeb- Starting parsetool")
     main(sys.argv)
