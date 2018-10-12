@@ -3,8 +3,8 @@
 
 #include <string>
 #include <stdarg.h>
-#include <fmt/format.h>
-#include <fmt/ostream.h>
+#include "fmt/fmt/format.h"
+#include "fmt/fmt/ostream.h"
 
 #include "tracing/ceph_logging.h"
 
