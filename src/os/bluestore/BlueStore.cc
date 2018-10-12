@@ -42,9 +42,9 @@
 #include "include/tracing/bluefs_impl.h"
 #include "include/tracing/bluestore_blob_impl.h"
 #include "include/tracing/bluestore_lru_cache_impl.h"
-#if WITH_LTTNG_LOGGING
-#include "tracing/ceph_logging_impl.h"
-#endif
+//#if WITH_LTTNG_LOGGING
+#include "include/tracing/ceph_logging_impl.h"
+//#endif
 
 #ifndef WITH_LTTNG_LOGGING
 #define trace(...)
@@ -9182,8 +9182,8 @@ void BlueStore::_txc_state_proc(TransContext *txc)
                               void*, txc, txc,
                               string, state_name, txc->get_state_name(),
                               " txc %s %s");
-    trace(10, "bluestore", "txc_state_proc_name txc {} {}",
-     fmt::ptr(txc), txc->get_state_name());
+//    trace(10, "bluestore", "txc_state_proc_name txc {} {}",
+//     fmt::ptr(txc), txc->get_state_name());
     switch (txc->state) {
     case TransContext::STATE_PREPARE:
       txc->log_state_latency(logger, l_bluestore_state_prepare_lat);
@@ -10095,7 +10095,7 @@ bluestore_deferred_op_t *BlueStore::_get_deferred_op(
 
 void BlueStore::_deferred_queue(TransContext *txc)
 {
-  trace(20, "bluestore", "txc {} osr {}", fmt::ptr(txc), txc->osr);
+//  trace(20, "bluestore", "txc {} osr {}", fmt::ptr(txc), txc->osr);
   deferred_lock.lock();
   if (!txc->osr->deferred_pending &&
       !txc->osr->deferred_running) {
@@ -10334,8 +10334,8 @@ int BlueStore::queue_transactions(
 
   Collection *c = static_cast<Collection*>(ch.get());
   OpSequencer *osr = c->osr.get();
-  trace(10, "bluestore", "queue_transactions ch {} {}",
-   c, c->cid);
+//  trace(10, "bluestore", "queue_transactions ch {} {}",
+//   c, c->cid);
   trace_queue_transactions(10, bluestore,
                            void*, collection, c,
                            coll_t, cid, c->cid,
