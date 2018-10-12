@@ -37,11 +37,11 @@
 #include "common/EventTrace.h"
 #include "perfglue/heap_profiler.h"
 
-#include "tracing/bluestore_gc_impl.h"
-#include "tracing/bluestore_impl.h"
-#include "tracing/bluefs_impl.h"
-#include "tracing/bluestore_blob_impl.h"
-#include "tracing/bluestore_lru_cache_impl.h"
+#include "include/tracing/bluestore_gc_impl.h"
+#include "include/tracing/bluestore_impl.h"
+#include "include/tracing/bluefs_impl.h"
+#include "include/tracing/bluestore_blob_impl.h"
+#include "include/tracing/bluestore_lru_cache_impl.h"
 #if WITH_LTTNG_LOGGING
 #include "tracing/ceph_logging_impl.h"
 #endif
