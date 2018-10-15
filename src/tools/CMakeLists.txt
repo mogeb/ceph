@@ -63,7 +63,7 @@ endif(WITH_TESTS)
 endif(WITH_LIBCEPHFS)
 
 add_executable(ceph-kvstore-tool ceph_kvstore_tool.cc)
-target_link_libraries(ceph-kvstore-tool os ceph_logging_tp global)
+target_link_libraries(ceph-kvstore-tool os ceph_logging_tp fmt::fmt global)
 install(TARGETS ceph-kvstore-tool DESTINATION bin)
 
 set(ceph_conf_srcs ceph_conf.cc)

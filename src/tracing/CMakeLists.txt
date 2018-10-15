@@ -12,8 +12,8 @@ add_custom_target(tracepoint_libraries)
 
 message("IN TRACING CMAKELISTS")
 
-execute_process(
-  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t tp --outdir ${CMAKE_BINARY_DIR})
+#execute_process(
+#  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t tp --outdir ${CMAKE_BINARY_DIR})
 if(WITH_LTTNG_LOGGING)
   message("1 RUNNING PARSETOOL for ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc")
 #  execute_process(
@@ -96,12 +96,15 @@ add_tracing_library(rgw_rados_tp rgw_rados.tp 1.0.0)
 
 if(WITH_LTTNG_LOGGING)
   add_tracing_library(ceph_logging_tp ceph_logging.tp 1.0.0)
+#  Uncommenting this line makes it so that build/include/tracing/ceph_logging.h
+#  isn't generated anymore..
+#  target_link_libraries(ceph_logging_tp fmt::fmt)
+
   foreach(tp ${generated_tps})
     get_filename_component(name ${tp} NAME)
     set(logging_tps "${name};${logging_tps}")
     message("SETTING LOGGING TPS: ${logging_tps}")
   endforeach()
-  target_link_libraries(ceph_logging_tp fmt::fmt)
 
   add_tracing_library(logging_tp "${logging_tps}" 1.0.0)
   install(TARGETS rados_tp osd_tp logging_tp ceph_logging_tp os_tp rgw_rados_tp rgw_op_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})
