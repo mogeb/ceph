@@ -1706,8 +1706,6 @@ fi
 %{_libdir}/librados.so.*
 %dir %{_libdir}/ceph
 %{_libdir}/ceph/libceph-common.so*
-%{_libdir}/libceph_logging_tp.so.*
-%{_libdir}/liblogging_tp.so.*
 %if %{with lttng}
 %{_libdir}/librados_tp.so.*
 %endif
@@ -1724,6 +1722,8 @@ fi
 %if %{with lttng}
 %{_libdir}/librados_tp.so
 %endif
+%{_libdir}/libceph_logging_tp.so.*
+%{_libdir}/liblogging_tp.so.*
 %{_bindir}/librados-config
 %{_mandir}/man8/librados-config.8*
 
