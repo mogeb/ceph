@@ -1264,6 +1264,10 @@ if [ $FIRST_ARG -ge 1 ] ; then
 fi
 
 %files common
+/usr/lib64/libceph_logging_tp.so
+/usr/lib64/liblogging_tp.so
+%{_libdir}/libceph_logging_tp.so.*
+%{_libdir}/liblogging_tp.so.*
 %dir %{_docdir}/ceph
 %doc %{_docdir}/ceph/sample.ceph.conf
 %license %{_docdir}/ceph/COPYING
@@ -1744,6 +1748,8 @@ fi
 %{_includedir}/rados/page.h
 %{_includedir}/rados/rados_types.hpp
 %{_libdir}/libradospp.so
+/usr/lib64/libceph_logging_tp.so
+/usr/lib64/liblogging_tp.so
 
 %if 0%{with python2}
 %files -n python-rados
