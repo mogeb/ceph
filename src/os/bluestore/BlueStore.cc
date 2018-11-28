@@ -1538,7 +1538,7 @@ BlueStore::OnodeRef BlueStore::OnodeSpace::lookup(const ghobject_t& oid)
 
 void BlueStore::OnodeSpace::clear()
 {
-  std::lock_guard<std::recursive_mutex> l(cache->lock);
+  std::lock_guard l(cache->lock);
   trace_onodespace_clear(10, bluestore, " clear");
   for (auto &p : onode_map) {
     cache->_rm_onode(p.second);
@@ -9595,7 +9595,7 @@ void BlueStore::_osr_attach(Collection *c)
 
 void BlueStore::_osr_register_zombie(OpSequencer *osr)
 {
-  std::lock_guard<std::mutex> l(zombie_osr_lock);
+  std::lock_guard l(zombie_osr_lock);
   trace_osr_register_zombie(10, bluestore,
    void*, osr, osr,
    "%s");
@@ -10020,7 +10020,7 @@ void BlueStore::_kv_finalize_thread()
   deque<TransContext*> kv_committed;
   deque<DeferredBatch*> deferred_stable;
   trace_kv_finalize_thread_start(10, bluestore, "kv_finalize_thread start");
-  std::unique_lock<std::mutex> l(kv_finalize_lock);
+  std::unique_lock l(kv_finalize_lock);
   ceph_assert(!kv_finalize_started);
   kv_finalize_started = true;
   kv_finalize_cond.notify_all();
@@ -10128,7 +10128,7 @@ void BlueStore::deferred_try_submit()
 {
   trace(20, "bluestore", "{} osrs, {} txcs",
     deferred_queue.size(), deferred_queue_size);
-  std::lock_guard<std::mutex> l(deferred_lock);
+  std::lock_guard l(deferred_lock);
   vector<OpSequencerRef> osrs;
   osrs.reserve(deferred_queue.size());
   for (auto& osr : deferred_queue) {
