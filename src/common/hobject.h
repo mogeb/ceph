@@ -464,6 +464,8 @@ public:
     (*this) = temp;
   }
 
+  operator std::string() const;
+
   void encode(bufferlist& bl) const;
   void decode(bufferlist::const_iterator& bl);
   void decode(json_spirit::Value& v);

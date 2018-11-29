@@ -4,13 +4,42 @@
 # ${PROJECT_BINARY_DIR}/include, where acconfig.h is also located
 set(working_dir ${CMAKE_BINARY_DIR}/include)
 set(header_dir ${working_dir}/tracing)
+set(tracing_build_dir ${CMAKE_BINARY_DIR}/tracing)
 file(MAKE_DIRECTORY ${header_dir})
+file(MAKE_DIRECTORY ${tracing_build_dir})
 
 add_custom_target(tracepoint_libraries)
 
+message("IN TRACING CMAKELISTS")
+
+#execute_process(
+#  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t tp --outdir ${CMAKE_BINARY_DIR})
+if(WITH_LTTNG_LOGGING)
+  message("1 RUNNING PARSETOOL for ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc")
+#  execute_process(
+#    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR})
+else()
+#  execute_process(
+#    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR} --disabled)
+endif()
+message("2 RUNNING PARSETOOL")
+#execute_process(
+#  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t c --outdir ${CMAKE_BINARY_DIR})
+
+file(GLOB all_files "${tracing_build_dir}/*")
+message("mogeb all files = ${all_files}")
+message("mogeb CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR}")
+file(GLOB generated_tps "${tracing_build_dir}/*.tp")
 file(GLOB tps "*.tp")
+message("mogeb setting generated_tps")
+set(generated_tps ${working_dir}/tracing/bluestore_gc.tp;${working_dir}/tracing/bluestore_lru_cache.tp;${working_dir}/tracing/bluestore.tp;${working_dir}/tracing/bluestore_blob.tp;${working_dir}/tracing/bluefs.tp)
+message("mogeb tracing_build_dir = ${tracing_build_dir}")
+message("mogeb GENERATED_TPS: ${generated_tps}")
+message("mogeb TPS: ${tps}")
 foreach(tp ${tps})
+  message("mogeb in foreach TP: ${tp}")
   get_filename_component(name ${tp} NAME_WE)
+  message("mogeb in foreach NAME: ${name}")
   set(header ${header_dir}/${name}.h)
   add_custom_command(
     OUTPUT ${header}
@@ -23,13 +52,30 @@ foreach(tp ${tps})
     DEPENDS ${header})
 endforeach()
 
+#add_custom_command(
+#  OUTPUT ${CMAKE_BINARY_DIR}/include/tracing/bluestore_impl.h
+#  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/tracetool/parsetool.py -f ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc -t h --outdir ${CMAKE_BINARY_DIR}
+#  DEPENDS ${CMAKE_SOURCE_DIR}/src/os/bluestore/BlueStore.cc
+#  COMMENT "Running parsetool.py")
+#add_custom_target(
+#  bluestore-parsetool
+#  DEPENDS ${CMAKE_BINARY_DIR}/include/tracing/bluestore_impl.h)
+
 function(add_tracing_library name tracings version)
   foreach(tp_file ${tracings})
     get_filename_component(tp ${tp_file} NAME_WE)
     list(APPEND hdrs
       ${header_dir}/${tp}.h)
-    list(APPEND tpfiles ${tp}.c)
+    # TODO: remove this condition when we move to tracetool for existing tracepoints
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${tp}.c")
+      list(APPEND tpfiles ${tp}.c)
+    else()
+      list(APPEND tpfiles ${tracing_build_dir}/${tp}.c)
+    endif()
   endforeach()
+  message("mogeb ${name}")
+  message("mogeb hrds = ${hdrs}")
+  message("mogeb tpfiles = ${tpfiles}")
   add_library(${name} SHARED ${hdrs} ${tpfiles})
   target_link_libraries(${name} ${LTTNGUST_LIBRARIES} ${CMAKE_DL_LIBS})
   string(REGEX MATCH "^[0-9]+" soversion ${version})
@@ -41,14 +87,31 @@ function(add_tracing_library name tracings version)
   add_dependencies(tracepoint_libraries ${name})
 endfunction()
 
-set(osd_traces oprequest.tp osd.tp pg.tp)
+set(osd_traces oprequest.tp osd.tp)
 add_tracing_library(osd_tp "${osd_traces}" 1.0.0)
-add_tracing_library(rados_tp librados.tp 2.0.0)
+add_tracing_library(rados_tp librados.tp 3.0.0)
 add_tracing_library(os_tp objectstore.tp 1.0.0)
 add_tracing_library(rgw_op_tp rgw_op.tp 1.0.0)
 add_tracing_library(rgw_rados_tp rgw_rados.tp 1.0.0)
 
-install(TARGETS rados_tp osd_tp os_tp rgw_rados_tp rgw_op_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if(WITH_LTTNG_LOGGING)
+  add_tracing_library(ceph_logging_tp ceph_logging.tp 1.0.0)
+#  Uncommenting this line makes it so that build/include/tracing/ceph_logging.h
+#  isn't generated anymore..
+#  target_link_libraries(ceph_logging_tp fmt::fmt)
+
+  foreach(tp ${generated_tps})
+    get_filename_component(name ${tp} NAME)
+    set(logging_tps "${name};${logging_tps}")
+    message("SETTING LOGGING TPS: ${logging_tps}")
+  endforeach()
+
+  add_tracing_library(logging_tp "${logging_tps}" 1.0.0)
+  install(TARGETS rados_tp osd_tp logging_tp ceph_logging_tp os_tp rgw_rados_tp rgw_op_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})
+else()
+  install(TARGETS rados_tp osd_tp os_tp rgw_rados_tp rgw_op_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
+
 if(WITH_RBD)
   add_tracing_library(rbd_tp librbd.tp 1.0.0)
   install(TARGETS rbd_tp DESTINATION ${CMAKE_INSTALL_LIBDIR})

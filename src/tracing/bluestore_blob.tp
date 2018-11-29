@@ -1,0 +1,28 @@
+#include "include/int_types.h"
+
+TRACEPOINT_EVENT(
+   bluestore_blob,
+   split_start,
+   TP_ARGS(uint32_t, blob_offset,
+      char *, this_blob),
+   TP_FIELDS(
+       ctf_integer_hex(uint32_t, blob_offset, blob_offset)
+       ctf_string(this_blob, this_blob)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_blob, split_start, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore_blob,
+   split_finish,
+   TP_ARGS(uint32_t, blob_offset,
+      char *, this_blob,
+      char *, blob),
+   TP_FIELDS(
+       ctf_integer_hex(uint32_t, blob_offset, blob_offset)
+       ctf_string(this_blob, this_blob)
+       ctf_string(blob, blob)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_blob, split_finish, TRACE_DEBUG_MODULE)
+

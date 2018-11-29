@@ -1,0 +1,26 @@
+#include "include/int_types.h"
+
+TRACEPOINT_EVENT(
+   bluefs,
+   balance_freespace_insufficient_allocate,
+   TP_ARGS(uint64_t, gift,
+      uint64_t, min_alloc_size,
+      int64_t, alloc_len),
+   TP_FIELDS(
+       ctf_integer_hex(uint64_t, gift, gift)
+       ctf_integer_hex(uint64_t, min_alloc_size, min_alloc_size)
+       ctf_integer_hex(int64_t, alloc_len, alloc_len)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluefs, balance_freespace_insufficient_allocate, TRACE_EMERG)
+
+TRACEPOINT_EVENT(
+   bluefs,
+   balance_freespace_gifting_to_bluefs,
+   TP_ARGS(char *, extent),
+   TP_FIELDS(
+       ctf_string(extent, extent)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluefs, balance_freespace_gifting_to_bluefs, TRACE_ALERT)
+

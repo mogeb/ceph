@@ -183,6 +183,12 @@ void dump(Formatter* f, const osd_alerts_t& alerts)
   }
 }
 
+pg_shard_t::operator std::string() {
+  stringstream out;
+  out << *this;
+  return out.str();
+}
+
 // -- osd_reqid_t --
 void osd_reqid_t::dump(Formatter *f) const
 {
@@ -901,6 +907,12 @@ void coll_t::generate_test_instances(list<coll_t*>& o)
   o.push_back(new coll_t(spg_t(pg_t(3, 2), shard_id_t(12))));
   o.push_back(new coll_t(o.back()->get_temp()));
   o.push_back(new coll_t());
+}
+
+coll_t::operator std::string() const {
+  std::stringstream out;
+  out << *this;
+  return out.str();
 }
 
 // ---
@@ -3324,6 +3336,12 @@ void pg_info_t::generate_test_instances(list<pg_info_t*>& o)
   }
 }
 
+pg_info_t::operator std::string() {
+  stringstream out;
+  out << *this;
+  return out.str();
+}
+
 // -- pg_notify_t --
 void pg_notify_t::encode(bufferlist &bl) const
 {
@@ -4623,6 +4641,17 @@ void pg_log_t::dump(Formatter *f) const
     f->close_section();
   }
   f->close_section();
+}
+
+pg_log_t::operator std::string() {
+  stringstream out;
+  out << *this;
+  return out.str();
+}
+pg_log_t::operator std::string() const {
+  stringstream out;
+  out << *this;
+  return out.str();
 }
 
 void pg_log_t::generate_test_instances(list<pg_log_t*>& o)

@@ -281,6 +281,7 @@ add_subdirectory(json_spirit)
 include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/src/xxHash")
 include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/src/rapidjson/include")
 
+add_subdirectory(fmt)
 if(WITH_SEASTAR)
   find_package(fmt 5.2.1 QUIET)
   if(NOT fmt_FOUND)

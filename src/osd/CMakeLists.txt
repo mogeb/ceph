@@ -49,6 +49,13 @@ target_link_libraries(osd
   PRIVATE
   ${LEVELDB_LIBRARIES}
   heap_profiler cpu_profiler ${CMAKE_DL_LIBS})
+if(WITH_LTTNG_LOGGING)
+  target_link_libraries(osd PRIVATE logging_tp)
+  target_link_libraries(osd PRIVATE ceph_logging_tp)
+  target_link_libraries(osd PRIVATE lttng-ust-fork)
+
+  target_link_libraries(osd PUBLIC fmt::fmt)
+endif()
 if(WITH_LTTNG)
   add_dependencies(osd osd-tp pg-tp)
 endif()

@@ -1,0 +1,18 @@
+#include "include/int_types.h"
+
+TRACEPOINT_EVENT(
+   bluestore_lru_cache,
+   trim,
+   TP_ARGS(size_t, lru_size,
+      uint64_t, onode_max,
+      uint64_t, buffer_size,
+      uint64_t, buffer_max),
+   TP_FIELDS(
+       ctf_integer(size_t, lru_size, lru_size)
+       ctf_integer(uint64_t, onode_max, onode_max)
+       ctf_integer(uint64_t, buffer_size, buffer_size)
+       ctf_integer(uint64_t, buffer_max, buffer_max)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore_lru_cache, trim, TRACE_DEBUG)
+
