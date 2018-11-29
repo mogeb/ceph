@@ -37,6 +37,16 @@
 #include "common/EventTrace.h"
 #include "perfglue/heap_profiler.h"
 
+#ifdef WITH_LTTNG_LOGGING
+#include "tracing/bluestore_gc_impl.h"
+#include "tracing/ceph_logging_impl.h"
+#endif
+
+#ifndef WITH_LTTNG_LOGGING
+#define trace(...)
+#define trace_error(...)
+#endif
+
 #define dout_context cct
 #define dout_subsys ceph_subsys_bluestore
 
@@ -594,9 +604,10 @@ void BlueStore::GarbageCollector::process_protrusive_extents(
   uint64_t lookup_start_offset = p2align(start_offset, min_alloc_size);
   uint64_t lookup_end_offset = round_up_to(end_offset, min_alloc_size);
 
-  dout(30) << __func__ << " (hex): [" << std::hex
-           << lookup_start_offset << ", " << lookup_end_offset 
-           << ")" << std::dec << dendl;
+  trace_process_protrusive_extents_lookup_offset(3, bluestore_gc,
+        uint64_t, lookup_start_offset, lookup_start_offset,
+        uint64_t, lookup_end_offset, lookup_end_offset,
+        "(hex): [%x, %x]");
 
   for (auto it = extent_map.seek_lextent(lookup_start_offset);
        it != extent_map.extent_map.end() &&
