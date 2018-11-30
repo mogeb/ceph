@@ -38,12 +38,12 @@
 #include "perfglue/heap_profiler.h"
 
 #ifdef WITH_LTTNG_LOGGING
-#include "tracing/bluefs_impl.h"
-#include "tracing/bluestore_impl.h"
-#include "tracing/bluestore_blob_impl.h"
-#include "tracing/bluestore_gc_impl.h"
-#include "tracing/bluestore_lru_cache_impl.h"
-#include "tracing/ceph_logging_impl.h"
+#include "include/tracing/bluefs_impl.h"
+#include "include/tracing/bluestore_impl.h"
+#include "include/tracing/bluestore_blob_impl.h"
+#include "include/tracing/bluestore_gc_impl.h"
+#include "include/tracing/bluestore_lru_cache_impl.h"
+#include "include/tracing/ceph_logging_impl.h"
 #endif
 
 #ifndef WITH_LTTNG_LOGGING

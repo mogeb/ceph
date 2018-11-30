@@ -1,0 +1,802 @@
+#include "include/int_types.h"
+
+TRACEPOINT_EVENT(
+   bluestore,
+   onodespace_clear,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, onodespace_clear, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   extentmap_reshard,
+   TP_ARGS(uint32_t, needs_reshard_begin,
+      uint32_t, needs_reshard_end,
+      size_t, extent_map_shards_size,
+      char *, oid),
+   TP_FIELDS(
+       ctf_integer_hex(uint32_t, needs_reshard_begin, needs_reshard_begin)
+       ctf_integer_hex(uint32_t, needs_reshard_end, needs_reshard_end)
+       ctf_integer(size_t, extent_map_shards_size, extent_map_shards_size)
+       ctf_string(oid, oid)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, extentmap_reshard, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   handle_discard,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, handle_discard, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   compression_set_to_none,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, compression_set_to_none, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   set_csum,
+   TP_ARGS(char *, csum_type),
+   TP_FIELDS(
+       ctf_string(csum_type, csum_type)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, set_csum, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   set_throttle_params,
+   TP_ARGS(uint64_t, throttle_cost_per_io),
+   TP_FIELDS(
+       ctf_integer(uint64_t, throttle_cost_per_io, throttle_cost_per_io)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, set_throttle_params, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   set_blob_size,
+   TP_ARGS(uint64_t, max_blob_size),
+   TP_FIELDS(
+       ctf_integer_hex(uint64_t, max_blob_size, max_blob_size)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, set_blob_size, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   show_cache_sizes,
+   TP_ARGS(uint64_t, cache_size,
+      float, cache_meta_ratio,
+      float, cache_kv_ratio,
+      float, cache_data_ratio),
+   TP_FIELDS(
+       ctf_integer(uint64_t, cache_size, cache_size)
+       ctf_float(float, cache_meta_ratio, cache_meta_ratio)
+       ctf_float(float, cache_kv_ratio, cache_kv_ratio)
+       ctf_float(float, cache_data_ratio, cache_data_ratio)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, show_cache_sizes, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   write_bdev_label,
+   TP_ARGS(char *, path,
+      char *, label),
+   TP_FIELDS(
+       ctf_string(path, path)
+       ctf_string(label, label)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, write_bdev_label, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   read_bdev_label,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, read_bdev_label, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   read_bdev_label_result,
+   TP_ARGS(char *, label),
+   TP_FIELDS(
+       ctf_string(label, label)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, read_bdev_label_result, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   disable_bluefs_min,
+   TP_ARGS(char *, dev_size),
+   TP_FIELDS(
+       ctf_string(dev_size, dev_size)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, disable_bluefs_min, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   open_fm_pre_fragmenting,
+   TP_ARGS(float, bluestore_debug_prefill,
+      int, prefragment_max),
+   TP_FIELDS(
+       ctf_float(float, bluestore_debug_prefill, bluestore_debug_prefill)
+       ctf_integer(int, prefragment_max, prefragment_max)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, open_fm_pre_fragmenting, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   opening_allocation_metadata,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, opening_allocation_metadata, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   open_alloc_loaded_extents,
+   TP_ARGS(char *, bytes,
+      uint64_t, num),
+   TP_FIELDS(
+       ctf_string(bytes, bytes)
+       ctf_integer(uint64_t, num, num)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, open_alloc_loaded_extents, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   open_alloc,
+   TP_ARGS(char *, bluefs_extents),
+   TP_FIELDS(
+       ctf_string(bluefs_extents, bluefs_extents)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, open_alloc, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   bluefs_disabled,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, bluefs_disabled, TRACE_NOTICE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   wal_is_rotational,
+   TP_ARGS(int, is_rotational),
+   TP_FIELDS(
+       ctf_integer(int, is_rotational, is_rotational)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, wal_is_rotational, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   open_db_kv_backend,
+   TP_ARGS(char *, kv_backend),
+   TP_FIELDS(
+       ctf_string(kv_backend, kv_backend)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, open_db_kv_backend, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   open_db_do_bluefs,
+   TP_ARGS(int, do_bluefs),
+   TP_FIELDS(
+       ctf_integer(int, do_bluefs, do_bluefs)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, open_db_do_bluefs, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   initializing_bluefs,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, initializing_bluefs, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   open_db,
+   TP_ARGS(char *, kv_backend,
+      char *, fn,
+      char *, options),
+   TP_FIELDS(
+       ctf_string(kv_backend, kv_backend)
+       ctf_string(fn, fn)
+       ctf_string(options, options)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, open_db, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   bs_setup_block_symlink_created,
+   TP_ARGS(char *, name,
+      char *, epath),
+   TP_FIELDS(
+       ctf_string(name, name)
+       ctf_string(epath, epath)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, bs_setup_block_symlink_created, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   bs_setup_block_symlink_resized,
+   TP_ARGS(char *, name,
+      char *, size),
+   TP_FIELDS(
+       ctf_string(name, name)
+       ctf_string(size, size)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, bs_setup_block_symlink_resized, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   mkfs_create,
+   TP_ARGS(char *, path),
+   TP_FIELDS(
+       ctf_string(path, path)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, mkfs_create, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   mkfs_create_already_created,
+   TP_ARGS(char *, path),
+   TP_FIELDS(
+       ctf_string(path, path)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, mkfs_create_already_created, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   mkfs_create_using_fsid_is_zero,
+   TP_ARGS(char *, fsid,
+      int, generated),
+   TP_FIELDS(
+       ctf_string(fsid, fsid)
+       ctf_integer(int, generated, generated)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, mkfs_create_using_fsid_is_zero, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   mkfs_create_using_fsid_is_not_zero,
+   TP_ARGS(char *, fsid,
+      int, generated),
+   TP_FIELDS(
+       ctf_string(fsid, fsid)
+       ctf_integer(int, generated, generated)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, mkfs_create_using_fsid_is_not_zero, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   mkfs,
+   TP_ARGS(int, success),
+   TP_FIELDS(
+       ctf_integer(int, success, success)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, mkfs, TRACE_EMERG)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   mount_path,
+   TP_ARGS(char *, path),
+   TP_FIELDS(
+       ctf_string(path, path)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, mount_path, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   unmount,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, unmount, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   fsck_walking_object_keyspace,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, fsck_walking_object_keyspace, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   fsck_checking_shared_blobs,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, fsck_checking_shared_blobs, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   fsck_sorting_out_misreferenced_extents,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, fsck_sorting_out_misreferenced_extents, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   fsck_checking_for_stray_omap_data,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, fsck_checking_for_stray_omap_data, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   fsck_checking_deferred_events,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, fsck_checking_deferred_events, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   fsck_checking_freelist_vs_allocated,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, fsck_checking_freelist_vs_allocated, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   fsck_finish,
+   TP_ARGS(int, errors,
+      unsigned, repaired,
+      int, remaining,
+      char *, duration_sec),
+   TP_FIELDS(
+       ctf_integer(int, errors, errors)
+       ctf_integer(unsigned, repaired, repaired)
+       ctf_integer(int, remaining, remaining)
+       ctf_string(duration_sec, duration_sec)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, fsck_finish, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   read_inject_random_eio,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, read_inject_random_eio, TRACE_EMERG)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   read,
+   TP_ARGS(char *, cid,
+      char *, oid,
+      uint64_t, offset,
+      size_t, length,
+      int, r),
+   TP_FIELDS(
+       ctf_string(cid, cid)
+       ctf_string(oid, oid)
+       ctf_integer_hex(uint64_t, offset, offset)
+       ctf_integer_hex(size_t, length, length)
+       ctf_integer(int, r, r)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, read, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   upgrade_super_start,
+   TP_ARGS(int32_t, ondisk_format,
+      int32_t, latest_ondisk_format),
+   TP_FIELDS(
+       ctf_integer(int32_t, ondisk_format, ondisk_format)
+       ctf_integer(int32_t, latest_ondisk_format, latest_ondisk_format)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, upgrade_super_start, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   upgrade_super_done,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, upgrade_super_done, TRACE_ALERT)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   txc_calc_cost,
+   TP_ARGS(void*, txc,
+      uint64_t, txc_cost,
+      uint64_t, ios,
+      uint64_t, cost,
+      uint64_t, txc_bytes),
+   TP_FIELDS(
+       ctf_integer_hex(void*, txc, txc)
+       ctf_integer(uint64_t, txc_cost, txc_cost)
+       ctf_integer(uint64_t, ios, ios)
+       ctf_integer(uint64_t, cost, cost)
+       ctf_integer(uint64_t, txc_bytes, txc_bytes)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, txc_calc_cost, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   txc_state_proc_name,
+   TP_ARGS(void*, txc,
+      char *, state_name),
+   TP_FIELDS(
+       ctf_integer_hex(void*, txc, txc)
+       ctf_string(state_name, state_name)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, txc_state_proc_name, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   txc_applied_kv,
+   TP_ARGS(char *, onode,
+      int, flushing_count),
+   TP_FIELDS(
+       ctf_string(onode, onode)
+       ctf_integer(int, flushing_count, flushing_count)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, txc_applied_kv, TRACE_DEBUG)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   txc_release_alloc_queued,
+   TP_ARGS(void*, txc,
+      char *, txc_released),
+   TP_FIELDS(
+       ctf_integer_hex(void*, txc, txc)
+       ctf_string(txc_released, txc_released)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, txc_release_alloc_queued, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   txc_release_alloc_sync,
+   TP_ARGS(void*, txc,
+      char *, txc_released),
+   TP_FIELDS(
+       ctf_integer_hex(void*, txc, txc)
+       ctf_string(txc_released, txc_released)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, txc_release_alloc_sync, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   osr_register_zombie,
+   TP_ARGS(void*, osr),
+   TP_FIELDS(
+       ctf_integer_hex(void*, osr, osr)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, osr_register_zombie, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   osr_drain_preceding,
+   TP_ARGS(void*, txc,
+      void*, osr),
+   TP_FIELDS(
+       ctf_integer_hex(void*, txc, txc)
+       ctf_integer_hex(void*, osr, osr)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, osr_drain_preceding, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   osr_drain_preceding_done,
+   TP_ARGS(void*, osr),
+   TP_FIELDS(
+       ctf_integer_hex(void*, osr, osr)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, osr_drain_preceding_done, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_sync_thread_start,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_sync_thread_start, TRACE_DEBUG)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_sync_thread_new_nid_max,
+   TP_ARGS(int, new_nid_max),
+   TP_FIELDS(
+       ctf_integer(int, new_nid_max, new_nid_max)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_sync_thread_new_nid_max, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_sync_thread_new_blobid_max,
+   TP_ARGS(int, new_blobid_max),
+   TP_FIELDS(
+       ctf_integer(int, new_blobid_max, new_blobid_max)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_sync_thread_new_blobid_max, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_sync_thread_nid_max_now,
+   TP_ARGS(int, nid_max_now),
+   TP_FIELDS(
+       ctf_integer(int, nid_max_now, nid_max_now)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_sync_thread_nid_max_now, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_sync_thread_blobid_max_now,
+   TP_ARGS(int, blobid_max),
+   TP_FIELDS(
+       ctf_integer(int, blobid_max, blobid_max)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_sync_thread_blobid_max_now, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_sync_releasing_old_bluefs,
+   TP_ARGS(char *, bluefs_extents_reclaiming),
+   TP_FIELDS(
+       ctf_string(bluefs_extents_reclaiming, bluefs_extents_reclaiming)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_sync_releasing_old_bluefs, TRACE_EMERG)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_sync_thread_finish,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_sync_thread_finish, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_finalize_thread_start,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_finalize_thread_start, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_finalize_thread_sleep,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_finalize_thread_sleep, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_finalize_thread_wake,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_finalize_thread_wake, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   kv_finalize_thread_finish,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, kv_finalize_thread_finish, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   deferred_submit_unlock,
+   TP_ARGS(void*, osr,
+      size_t, iomap_size),
+   TP_FIELDS(
+       ctf_integer_hex(void*, osr, osr)
+       ctf_integer(size_t, iomap_size, iomap_size)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, deferred_submit_unlock, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   deferred_aio_finish,
+   TP_ARGS(void*, osr),
+   TP_FIELDS(
+       ctf_integer_hex(void*, osr, osr)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, deferred_aio_finish, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   deferred_replay_start,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, deferred_replay_start, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   deferred_replay_completed,
+   TP_ARGS(int, count),
+   TP_FIELDS(
+       ctf_integer(int, count, count)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, deferred_replay_completed, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   queue_transactions_blackhole,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, queue_transactions_blackhole, TRACE_EMERG)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   queue_transactions,
+   TP_ARGS(void*, collection,
+      char *, cid),
+   TP_FIELDS(
+       ctf_integer_hex(void*, collection, collection)
+       ctf_string(cid, cid)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, queue_transactions, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   txc_aio_submit,
+   TP_ARGS(void*, txc),
+   TP_FIELDS(
+       ctf_integer_hex(void*, txc, txc)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, txc_aio_submit, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   txc_add_transaction_coll_hint_noop,
+   TP_ARGS(uint32_t, pg_num,
+      uint64_t, num_objs),
+   TP_FIELDS(
+       ctf_integer(uint32_t, pg_num, pg_num)
+       ctf_integer(uint64_t, num_objs, num_objs)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, txc_add_transaction_coll_hint_noop, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   txc_add_transaction_coll_unknown_hint,
+   TP_ARGS(uint32_t, hint),
+   TP_FIELDS(
+       ctf_integer(uint32_t, hint, hint)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, txc_add_transaction_coll_unknown_hint, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   do_write_small,
+   TP_ARGS(uint64_t, offset,
+      uint64_t, length),
+   TP_FIELDS(
+       ctf_integer_hex(uint64_t, offset, offset)
+       ctf_integer_hex(uint64_t, length, length)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, do_write_small, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   do_write_big,
+   TP_ARGS(uint64_t, offset,
+      uint64_t, length,
+      uint64_t, target_blob_size,
+      int, wctx_compress),
+   TP_FIELDS(
+       ctf_integer_hex(uint64_t, offset, offset)
+       ctf_integer_hex(uint64_t, length, length)
+       ctf_integer_hex(uint64_t, target_blob_size, target_blob_size)
+       ctf_integer(int, wctx_compress, wctx_compress)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, do_write_big, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   write,
+   TP_ARGS(char *, cid,
+      char *, oid,
+      uint64_t, offset,
+      size_t, length,
+      int, r),
+   TP_FIELDS(
+       ctf_string(cid, cid)
+       ctf_string(oid, oid)
+       ctf_integer_hex(uint64_t, offset, offset)
+       ctf_integer_hex(size_t, length, length)
+       ctf_integer(int, r, r)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, write, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   setattrs,
+   TP_ARGS(char *, cid,
+      char *, oid,
+      size_t, aset_size,
+      int, r),
+   TP_FIELDS(
+       ctf_string(cid, cid)
+       ctf_string(oid, oid)
+       ctf_integer(size_t, aset_size, aset_size)
+       ctf_integer(int, r, r)
+   )
+)
+TRACEPOINT_LOGLEVEL(bluestore, setattrs, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   _flush_cache,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, _flush_cache, TRACE_DEBUG_MODULE)
+
+TRACEPOINT_EVENT(
+   bluestore,
+   flush_cache,
+   TP_ARGS(void),
+   TP_FIELDS()
+)
+TRACEPOINT_LOGLEVEL(bluestore, flush_cache, TRACE_DEBUG_MODULE)
+
