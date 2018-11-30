@@ -205,6 +205,12 @@ public:
     return ts;
   }
 
+  operator std::string() {
+    stringstream out;
+    localtime(out);
+    return out.str();
+  }
+
   void sleep() const {
     struct timespec ts;
     to_timespec(&ts);
