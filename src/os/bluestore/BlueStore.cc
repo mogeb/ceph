@@ -10184,7 +10184,7 @@ void BlueStore::_deferred_submit_unlock(OpSequencer *osr)
       pos = i->first;
       bl.clear();
     }
-    trace(20, "bluestore", "seq {} 0x{1:x}~{2:x}",
+    trace(20, "bluestore", "seq {0:x} 0x{1:x}~{2:x}",
       i->second.seq, pos, i->second.bl.length());
     if (!bl.length()) {
       start = pos;
