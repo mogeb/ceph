@@ -11497,8 +11497,8 @@ int BlueStore::_do_alloc_write(
         b_off = suggested_boff;
       }
       if (csum != Checksummer::CSUM_NONE) {
-        trace(20, "bluestore", "initialize csum setting for new blob {0} "
-          "csum_type {1} csum_order {2} csum_length 0x{3:x}",
+        trace(20, "bluestore", "initialize csum setting for new blob {0:x} "
+          "csum_type {1:x} csum_order {2:x} csum_length 0x{3:x}",
           *b, Checksummer::get_csum_type_string(csum), csum_order, csum_length);
         dblob.init_csum(csum, csum_order, csum_length);
       }
@@ -11796,7 +11796,7 @@ void BlueStore::_choose_write_options(
     wctx->target_blob_size = min_alloc_size * 2;
   }
 
-  trace(20, "bluestore", "prefer csum_order {0} target_blob_size {1} compress={} buffered={}",
+  trace(20, "bluestore", "prefer csum_order {0} target_blob_size {1} compress={2} buffered={3}",
     wctx->csum_order, wctx->target_blob_size, (int)wctx->compress, (int)wctx->buffered);
 }
 
@@ -11862,7 +11862,7 @@ int BlueStore::_do_write(
 {
   int r = 0;
 
-  trace(20, "bluestore", "{0} 0x{1:x}~{2:x} - have 0x{3:x} ({4})"
+  trace(20, "bluestore", "{0:x} 0x{1:x}~{2:x} - have 0x{3:x} ({4:x})"
     "bytes fadvise_flags 0x{5:x}",
     o->oid, offset, length, o->onode.size, o->onode.size, fadvise_flags);
   _dump_onode(o);
@@ -11968,7 +11968,7 @@ int BlueStore::_zero(TransContext *txc,
     _assign_nid(txc, o);
     r = _do_zero(txc, c, o, offset, length);
   }
-  trace(10, "bluestore", "{0} {1} 0x{2:x}~{3:x} = {4}",
+  trace(10, "bluestore", "{0:x} {1:x} 0x{2:x}~{3:x} = {4:x}",
     c->cid, o->oid, offset, length, r);
   return r;
 }
