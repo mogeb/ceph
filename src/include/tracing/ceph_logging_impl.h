@@ -10,8 +10,11 @@
 
 using fmt::format;
 
-#define trace(ll, ss, fmt, ...) __trace(ll, ss, format(fmt, __VA_ARGS__))
-#define trace_error(ss, fmt, ...) __trace(-1, ss, format(fmt, __VA_ARGS__))
+//#define trace(ll, ss, fmt, ...) __trace(ll, ss, format(fmt, __VA_ARGS__))
+//#define trace_error(ss, fmt, ...) __trace(-1, ss, format(fmt, __VA_ARGS__))
+
+#define trace(ll, ss, fmt, ...)
+#define trace_error(ss, fmt, ...)
 
 //static inline void trace(int loglevel, string subsys, const char *fmt, void *arg, ...)
 static inline void __trace(int loglevel, string subsys, string str)
