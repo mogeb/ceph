@@ -1436,12 +1436,12 @@ bool OSDService::prepare_to_stop()
 	osdmap->get_epoch(),
 	true  // request ack
 	));
-    utime_t now = ceph_clock_now();
-    utime_t timeout;
-    timeout.set_from_double(now + cct->_conf->osd_mon_shutdown_timeout);
-    while ((ceph_clock_now() < timeout) &&
+    mono_time start = mono_clock::now();
+    // make_timespan is in seconds
+    ceph::timespan dur = ceph::make_timespan(cct->_conf->osd_mon_shutdown_timeout);
+    while ((mono_clock::now() - start) < dur &&
        (get_state() != STOPPING)) {
-      is_stopping_cond.WaitUntil(is_stopping_lock, timeout);
+      is_stopping_cond.WaitInterval(is_stopping_lock, dur);
     }
   }
   dout(0) << __func__ << " starting shutdown" << dendl;
