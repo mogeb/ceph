@@ -747,6 +747,11 @@ struct entity_inst_t {
   // cppcheck-suppress noExplicitConstructor
   entity_inst_t(const ceph_entity_inst& i) : name(i.name), addr(i.addr) { }
   entity_inst_t(const ceph_entity_name& n, const ceph_entity_addr &a) : name(n), addr(a) {}
+  operator std::string() {
+    stringstream out;
+    out << this;
+    return out.str();
+  }
   operator ceph_entity_inst() {
     ceph_entity_inst i = {name, addr};
     return i;
