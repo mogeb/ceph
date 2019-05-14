@@ -24,6 +24,8 @@ smaller than 2GB because ceph-volume creates vgs with PE = 1GB.
 # TODO make sure nothing breaks on filestore/non-LVM bluestore
 # TODO add cache size to `cache info`
 # TODO in documentation make sure to mention the ratio of metadata to data from man lvmcache
+# TODO add success messages
+# TODO add help commend
 
 
 """
