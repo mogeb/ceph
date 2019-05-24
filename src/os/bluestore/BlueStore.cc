@@ -12688,6 +12688,12 @@ int BlueStore::_zero(TransContext *txc,
     _assign_nid(txc, o);
     r = _do_zero(txc, c, o, offset, length);
   }
+  trace_zero(10, bluestore,
+   Cid, cid, c->cid,
+   Oid, oid, o->oid,
+   uint64_t, offset, offset,
+   uint64_t, length, length,
+   int, r, r);
   trace(10, "bluestore", "{0} {1} 0x{2:x}~{3:x} = {4}",
     c->cid, o->oid, offset, length, r);
   return r;
