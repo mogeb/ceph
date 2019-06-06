@@ -1104,8 +1104,14 @@ void BlueStore::TwoQCache::_trim(uint64_t onode_max, uint64_t buffer_max)
 //  dout(20) << __func__ << " onodes " << onode_lru.size() << " / " << onode_max
 //	   << " buffers " << buffer_bytes << " / " << buffer_max
 //	   << dendl;
-  trace(20, "bluestore.2QCache", "onodes {} / {} buffers {} / {}",
-    onode_lru.size(), onode_max, buffer_bytes, buffer_max);
+//  trace(20, "bluestore.2QCache", "onodes {} / {} buffers {} / {}",
+//    onode_lru.size(), onode_max, buffer_bytes, buffer_max);
+  trace_trim(20, bluestore_twoqcache,
+    uint32_t, onode_lru_size, onode_lru.size(),
+    uint64_t, onode_max, onode_max,
+    uint64_t, buffer_bytes, buffer_bytes,
+    uint64_t, buffer_max, buffer_max,
+    "onodes {} / {} buffers {} / {}");
 
   _audit("trim start");
 
@@ -8479,9 +8485,9 @@ int BlueStore::read(
     trace_read_inject_random_eio(0, bluestore, ": inject random EIOD");
     r = -EIO;
   }
-trace(10, "bluestore", "read {}, {}, {}, {} and {}",
-  cid, oid, offset, length, r);
-trace_read(10, bluestore,
+  //trace(10, "bluestore", "read {}, {}, {}, {} and {}",
+  //  cid, oid, offset, length, r);
+  trace_read(10, bluestore,
      coll_t, cid, cid,
      ghobject_t, oid, oid,
      uint64_t, offset, offset,
@@ -10651,11 +10657,18 @@ void BlueStore::_kv_sync_thread()
 	ceph::timespan dur_flush = after_flush - start;
 	ceph::timespan dur_kv = finish - after_flush;
 	ceph::timespan dur = finish - start;
-        trace(20, "bluestore",
-          "committed {} cleaned {} in {} ({} flush + {} kv commit)",
-          kv_committing.size(),
-          deferred_stable.size(),
-          dur, dur_flush, dur_kv);
+//        trace(20, "bluestore",
+//          "committed {} cleaned {} in {} ({} flush + {} kv commit)",
+//          kv_committing.size(),
+//          deferred_stable.size(),
+//          dur, dur_flush, dur_kv);
+        trace_kv_sync_committed(20, bluestore,
+          uint32_t, kv_committing_size, kv_committing.size(),
+          uint32_t, deferred_stable_size, deferred_stable.size(),
+          string, dur, dur,
+          string, dur_flush, dur_flush,
+          string, dur_kv, dur_kv,
+          "committed {} cleaned {} in {} ({} flush + {} kv commit)");
 	LOG_LATENCY(logger, cct, l_bluestore_kv_flush_lat, dur_flush);
 	LOG_LATENCY(logger, cct, l_bluestore_kv_commit_lat, dur_kv);
 	LOG_LATENCY(logger, cct, l_bluestore_kv_sync_lat, dur);
@@ -10704,8 +10717,14 @@ void BlueStore::_kv_finalize_thread()
       kv_committed.swap(kv_committing_to_finalize);
       deferred_stable.swap(deferred_stable_to_finalize);
       l.unlock();
-      trace(20, "bluestore", "kv_committed {}", kv_committed);
-      trace(20, "bluestore", "deferred_stable {}", deferred_stable);
+//      trace(20, "bluestore", "kv_committed {}", kv_committed);
+      trace_kv_committed(20, bluestore,
+        string, kv_committed, kv_committed,
+        "kv_committed {}");
+//      trace(20, "bluestore", "deferred_stable {}", deferred_stable);
+      trace_deferred_stable(20, bluestore,
+        string, deferred_stable, deferred_stable,
+        "deferred_stable {}");
 
       auto start = mono_clock::now();
 
@@ -10792,8 +10811,12 @@ void BlueStore::_deferred_queue(TransContext *txc)
 
 void BlueStore::deferred_try_submit()
 {
-  trace(20, "bluestore", "{} osrs, {} txcs",
-    deferred_queue.size(), deferred_queue_size);
+//  trace(20, "bluestore", "{} osrs, {} txcs",
+//    deferred_queue.size(), deferred_queue_size);
+  trace_deferred_try_submit(20, bluestore,
+    int, osrs, deferred_queue.size(),
+    int, txcs, deferred_queue_size,
+    "bluestore", "{} osrs, {} txcs");
   std::lock_guard l(deferred_lock);
   vector<OpSequencerRef> osrs;
   osrs.reserve(deferred_queue.size());
@@ -10806,10 +10829,16 @@ void BlueStore::deferred_try_submit()
 	_deferred_submit_unlock(osr.get());
 	deferred_lock.lock();
       } else {
-	trace(20, "bluestore", "osr {} already has running", osr);
+//	trace(20, "bluestore", "osr {} already has running", osr);
+        trace_deferred_try_submit_has_running(20, bluestore,
+          string, osr, osr,
+          "osr {} already has running");
       }
     } else {
-      trace(20, "bluestore", "osr {} has no pending", osr);
+//      trace(20, "bluestore", "osr {} has no pending", osr);
+      trace_deferred_try_submit_has_no_pending(20, bluestore,
+        string, osr, osr,
+        "osr {} has no pending");
     }
   }
 }
@@ -10841,8 +10870,13 @@ void BlueStore::_deferred_submit_unlock(OpSequencer *osr)
   while (true) {
     if (i == b->iomap.end() || i->first != pos) {
       if (bl.length()) {
-        trace(20, "bluestore", "write 0x{0:x}~{1:x} crc {2:x}",
-          start, bl.length(), bl.crc32c(-1));
+//        trace(20, "bluestore", "write 0x{0:x}~{1:x} crc {2:x}",
+//          start, bl.length(), bl.crc32c(-1));
+        trace_deferred_submit_unlock_write(20, bluestore,
+          uint64_t, start, start,
+          int, bl_len, bl.length(),
+          string, bl_crc32, bl.crc32c(-1),
+          "write 0x{0:x}~{1:x} crc {2:x}");
 	if (!g_conf()->bluestore_debug_omit_block_device_write) {
 	  logger->inc(l_bluestore_deferred_write_ops);
 	  logger->inc(l_bluestore_deferred_write_bytes, bl.length());
@@ -10857,8 +10891,13 @@ void BlueStore::_deferred_submit_unlock(OpSequencer *osr)
       pos = i->first;
       bl.clear();
     }
-    trace(20, "bluestore", "seq {} 0x{1:x}~{2:x}",
-      i->second.seq, pos, i->second.bl.length());
+//    trace(20, "bluestore", "seq {} 0x{1:x}~{2:x}",
+//      i->second.seq, pos, i->second.bl.length());
+    trace_deferred_subumit_unlock_seq(20, bluestore,
+      string, seq, second.seq,
+      uint64_t, pos, pos,
+      int, bl.len, second.bl.length(),
+      "seq {} 0x{1:x}~{2:x}");
     if (!bl.length()) {
       start = pos;
     }
@@ -12688,14 +12727,15 @@ int BlueStore::_zero(TransContext *txc,
     _assign_nid(txc, o);
     r = _do_zero(txc, c, o, offset, length);
   }
+//  trace(10, "bluestore", "{0} {1} 0x{2:x}~{3:x} = {4}",
+//    c->cid, o->oid, offset, length, r);
   trace_zero(10, bluestore,
    Cid, cid, c->cid,
    Oid, oid, o->oid,
    uint64_t, offset, offset,
    uint64_t, length, length,
-   int, r, r);
-  trace(10, "bluestore", "{0} {1} 0x{2:x}~{3:x} = {4}",
-    c->cid, o->oid, offset, length, r);
+   int, r, r,
+   "bluestore", "{0} {1} 0x{2:x}~{3:x} = {4}");
   return r;
 }
 
