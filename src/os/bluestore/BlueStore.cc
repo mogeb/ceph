@@ -13091,11 +13091,6 @@ int BlueStore::_set_alloc_hint(
   uint64_t expected_write_size,
   uint32_t flags)
 {
-  dout(15) << __func__ << " " << c->cid << " " << o->oid
-	   << " object_size " << expected_object_size
-	   << " write_size " << expected_write_size
-	   << " flags " << ceph_osd_alloc_hint_flag_string(flags)
-	   << dendl;
   int r = 0;
   o->onode.expected_object_size = expected_object_size;
   o->onode.expected_write_size = expected_write_size;
